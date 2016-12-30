@@ -42,7 +42,7 @@
        while(1);
      }
      delay(2000);
-     //connect to the wifi    AT+CWJAP= “Wi-FiNetwork”,“Password” 
+     //connect to the wifi    AT+CWJAP= “NICTOPIA”,“queganasdejoder” 
      boolean connected=false;
      for(int i=0;i<5;i++)
      {

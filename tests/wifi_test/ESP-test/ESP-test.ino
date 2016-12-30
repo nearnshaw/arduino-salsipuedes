@@ -1,13 +1,16 @@
 #include <doxygen.h>
+#include <ESP8266.h>
+
+#include <doxygen.h>
 #include <ESP8266.h>   //https://github.com/itead/ITEADLIB_Arduino_WeeESP8266
 
 
 #include <SoftwareSerial.h>
-SoftwareSerial BT1(10, 11); // RX | TX
+SoftwareSerial BT1(12, 13); // RX | TX
 
 void setup()
-  {  Serial.begin(115200);
-     BT1.begin(115200);
+  {  Serial.begin(9600);
+     BT1.begin(9600);
   }
 
 void loop()
