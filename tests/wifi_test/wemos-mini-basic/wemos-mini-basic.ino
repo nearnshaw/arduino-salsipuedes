@@ -1,18 +1,36 @@
+#include <RestClient.h>       // https://github.com/fabianofranca/ESP8266RestClient
 #include <ESP8266WiFi.h>
-#include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+
+
+const char* hostPC = "192.168.0.15";  //IP de PC
+const int portPC = 7003;          // puerto PC
 
 const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 
-//const char* host = "192.168.0.15";  //IP de PC
-//const int httpPort = 7001;
+
+/*
+BEST PRACTICES
+
+in handleRoot ALWAYS put description, leave all methods in /something
+
+/test :  has name of device
+
+A0, analoge pin, weird behavior, seems to block wifi working,  avoid
+
+*/
 
 
+
+
+RestClient client = RestClient(hostPC,portPC);
 ESP8266WebServer server(80);
 
+
 const int led = D5;
+const int ledStrip = D7;
 const int magnet = D1;
 int mag = 0;
 boolean magnetState = false;
@@ -20,10 +38,12 @@ boolean magnetState = false;
 void handleRoot() {
   
   digitalWrite(led, 1);
+  digitalWrite(ledStrip, 1);
   delay(500);
   server.send(200, "text/plain", "hello from esp8266!");
   Serial.println("root request");
   digitalWrite(led, 0);
+  digitalWrite(ledStrip, 0);
 }
 
 void handleTest()
@@ -52,10 +72,14 @@ void handleNotFound(){
 
 void setup(void){
   pinMode(led, OUTPUT);
+  pinMode(ledStrip, OUTPUT);
   pinMode(magnet,INPUT);
   digitalWrite(led, 0);
   Serial.begin(115200);
+
+  
   WiFi.begin(ssid, password);
+  client.begin(ssid, password);
   Serial.println("");
 
   // Wait for connection
@@ -100,20 +124,36 @@ void loop(void){
   server.handleClient();
 
   mag = digitalRead(magnet);
-  //Serial.println(mag);
-
-//  if(mag < 10 && magnetState == false)
- // {
-
-    //serveStatic(pcIP)
-    
-   // magnetState = true;
- // }
- // else
- // {
- //    magnetState = false;
- // }
+  Serial.println(mag);
+  delay(1);
+  if(mag == 1)
+  {
+    if (magnetState == false)
+    {
+  
+      //client.begin(ssid, password);
+      ///int statusCode = client.get("/");
+      //client.post("/","1");
+      //client.get("/");
+      String response = "";
+      int statusCode = client.post("/", "foo=bar", &response);
+      
+      Serial.print("request sent, response:");          
+      Serial.print( statusCode);
+      delay(1000);
+      magnetState = true;
+      
+    }
+  }
+  else
+  {
+     magnetState = false;
+  }
   
 
   
 }
+
+
+
+
