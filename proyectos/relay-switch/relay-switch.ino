@@ -15,13 +15,16 @@ const int localPort = 7016;
 
 
 
-// specific variables
+//relay pins
+const int R1 = D5;
+const int R2 = D6;
+const int R3 = D7;
+const int R4 = D8;
 
-const int led = D5;       //normal led w resistance
-const int magnet = D1;    //reed sensor (magnet) on the digital out pin
-int mag = 0;
-boolean magnetState = false;
-
+bool R1state = false;
+bool R2state = false;
+bool R3state = false;
+bool R4state = false;
 
 
 
@@ -44,6 +47,15 @@ void setup() {
     server.on("/", handleRoot);
     
     server.on("/test", handleTest);
+
+    server.on("/r1", handleR1);
+
+    server.on("/r2", handleR2);
+
+    server.on("/r3", handleR3);
+
+    server.on("/r4", handleR4);
+
     
     server.onNotFound(handleNotFound);
     
@@ -55,8 +67,16 @@ void setup() {
       
       // initialise pins
       pinMode(D5,OUTPUT);
-      pinMode(D1,INPUT);
+      pinMode(D6,OUTPUT);
+      pinMode(D7,OUTPUT);
+      pinMode(D8,OUTPUT);
+                        
 
+      digitalWrite(D5,LOW);
+      digitalWrite(D6,LOW);
+      digitalWrite(D7,LOW);
+      digitalWrite(D8,LOW);
+                        
 
       
     }
@@ -69,21 +89,99 @@ void setup() {
 // HANDLE INCOMING MSG
 
 void handleRoot() {
-  digitalWrite(led, 1);
   delay(500);
-  server.send(200, "text/plain", "Detecta iman");
+  server.send(200, "text/plain", "Prende 4 relays");
+  server.send(200, "text/plain", "/r1 /r2 /r3 /r4");
   Serial.println("root request");
-  digitalWrite(led, 0);
+
 }
 
 void handleTest()
 {
-   server.send(200, "text/plain", "hab13tel");
+   server.send(200, "text/plain", "relays1");
    Serial.println("testing request");
 }
 
+
+void handleR1()
+{
+   if (R1state)
+    {
+      digitalWrite(R1, LOW);
+      R1state = false;
+      server.send(200, "text/plain", "relay 1 on");
+      Serial.println("relay1 on");
+    }
+    else
+    {
+      digitalWrite(R1, HIGH); 
+      R1state = true;   
+      Serial.println("relay1 off");
+      server.send(200, "text/plain", "relay 1 off");
+    }
+}
+
+
+void handleR2()
+{
+   if (R2state)
+    {
+      digitalWrite(R2, LOW);
+      R2state = false;
+      Serial.println("relay2 on");
+    }
+    else
+    {
+      digitalWrite(R2, HIGH); 
+      R2state = true;   
+      Serial.println("relay2 off");
+      server.send(200, "text/plain", "relay 2 off");
+    }
+}
+
+void handleR3()
+{
+   if (R3state)
+    {
+      digitalWrite(R3, LOW);
+      R3state = false;
+      server.send(200, "text/plain", "relay 3 on");
+      Serial.println("relay3 on");
+    }
+    else
+    {
+      digitalWrite(R3, HIGH); 
+      R3state = true;   
+      server.send(200, "text/plain", "relay 3 off");
+      Serial.println("relay3 off");
+    }
+}
+
+
+void handleR4()
+{
+   if (R4state)
+    {
+      digitalWrite(R4, LOW);
+      R4state = false;
+      server.send(200, "text/plain", "relay 4 on");
+      Serial.println("relay4 on");
+    }
+    else
+    {
+      digitalWrite(R4, HIGH); 
+      R4state = true;  
+      server.send(200, "text/plain", "relay 4 off");
+      Serial.println("relay4 off"); 
+    }
+}
+
+
+
+
+
 void handleNotFound(){
-  digitalWrite(led, 1);
+
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -96,7 +194,7 @@ void handleNotFound(){
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
+
 }
 
 
@@ -117,48 +215,8 @@ if(wifiConnected){
     server.handleClient();
     
     if(udpConnected){
-      
-      UDPRead();
-      delay(15);
-
-
-  // reads magnet and sends msg
-  
-      mag = digitalRead(magnet);
-     // Serial.println(mag);
-      if(mag == 1)
-      {
-        if (magnetState == false)
-        {
-        // send a reply, to the IP address and port that sent us the packet we received
-        UDP.beginPacket(pcRemoteHost, pcRemotePort);
-        //UDP.write(5);   // write returns nonsense
-        UDP.print("puto");
-        UDP.print(123);
-        UDP.endPacket();
-        Serial.print("request sent, response:");          
-        delay(1000);
-        magnetState = true;    
-      }
-    }
-    else
-    {
-       magnetState = false;
-    }
-
-
-  // magnet specific code up to here
     
-    }
-  }
-}
-
-
-// read UDP incoming packages
-
-void UDPRead()
-{
-     // if there’s data available, read a packet
+      // if there’s data available, read a packet
       
       int packetSize = UDP.parsePacket();
       if(packetSize)
@@ -194,8 +252,15 @@ void UDPRead()
         delay(1000);
         digitalWrite(D5,LOW);        
       }
-}
+      delay(15);
 
+
+    
+    }
+  
+  }
+
+}
 
 // connect to UDP – returns true if successful or false if not
 boolean connectUDP(){

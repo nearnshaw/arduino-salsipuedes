@@ -101,10 +101,6 @@ void setup(void){
 
   server.on("/test", handleTest);
 
-  server.on("/inline", [](){
-    server.send(200, "text/plain", "this works as well");
-  });
-
   server.onNotFound(handleNotFound);
 
   server.begin();
