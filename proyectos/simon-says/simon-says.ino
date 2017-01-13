@@ -12,16 +12,56 @@ boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
 const int pcRemotePort = 7016;
 const int localPort = 7016;
-const char* controllerId = "hab13tel";
+const char* controllerId = "hab13simon";
 
 
-// specific variables
 
-const int led = D5;       //normal led w resistance
-const int magnet = D1;    //reed sensor (magnet) on the digital out pin
 
-int mag = 0;
-boolean magnetState = false;
+
+// specific configurable variables
+
+const int leds[] = { D0, D5, D6, D7} ;       //normal led w 230 resistance
+
+const int buttons[] = {D1, D2, D3, D4};       //button w 1k / 10k resistance
+
+const int buzzer = D8;       //buzzer
+
+const int pitches[] = {20, 25, 30, 35};    //NOTE_C4,  NOTE_A4   ...etc
+
+const unsigned long debounceDelay = 75;    // the debounce time; increase if the output flickers
+
+
+
+const int pattern[] = {
+  0, 1, 1
+};
+
+const int noteDuration = 1;   //maybe it can speed up over time,  remove const then
+
+
+// specific program variables
+
+bool simonMode = true;
+
+int currentPattern[] = {9,9,9,9,9};
+
+int patternIndex = 1;
+
+int currentLevel = 1;
+
+int ledState[] = { LOW ,LOW ,LOW ,LOW } ;
+
+int buttonReading[] = { LOW ,LOW ,LOW ,LOW } ;
+
+int buttonState[] = { LOW ,LOW ,LOW ,LOW } ;
+
+int lastButtonState[] = { LOW ,LOW ,LOW ,LOW } ;
+
+unsigned long lastDebounceTime[] = { 0, 0, 0, 0};  // the last time the output pin was toggled
+
+
+
+//const int buzzer =  ;
 
 
 
@@ -58,8 +98,15 @@ void setup() {
       
 //////// initialise pins
 
-      pinMode(D5,OUTPUT);
-      pinMode(D1,INPUT);
+      pinMode(leds[0],OUTPUT);
+      pinMode(leds[1],OUTPUT);
+      pinMode(leds[2],OUTPUT);
+      pinMode(leds[3],OUTPUT);
+      
+      pinMode(buttons[0],INPUT);
+      pinMode(buttons[1],INPUT);
+      pinMode(buttons[2],INPUT);
+      pinMode(buttons[3],INPUT);
 
 /////
       
@@ -73,17 +120,25 @@ void setup() {
 // handle incomimg msg
 
 void handleRoot() {
-  digitalWrite(led, 1);
+  digitalWrite(LED_BUILTIN, 1);
   delay(500);
 
 /////// DESCRIPTION 
 
-  server.send(200, "text/plain", "Detecta iman");
+  String message = "simon says\n\n";
+  message += controllerId;
+  message += "\n\n metodos: \n";
+  message += "/test /reset  \n\n" ;
+  message += "manda a puerto: \n";
+  message += pcRemotePort ;
+  message += "\n recibe en puerto: \n";
+  message += localPort; 
+  server.send(200, "text/plain", message);
 
 ///////
 
   Serial.println("root request");
-  digitalWrite(led, 0);
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 void handleTest()
@@ -101,8 +156,35 @@ void handleReset()
 
 ////  VARIABLES TO RESET
 
-  int mag = 0;
-  boolean magnetState = false;
+    simonMode = true;
+
+    for (int m = 0; m <4; m++)
+    {         
+        
+        ledState[m] = LOW;
+        
+        buttonReading[m] = LOW ;
+        
+        buttonState[m] = LOW ;
+        
+        lastButtonState[m] = LOW ;
+        
+        lastDebounceTime[m] = 0 ;
+
+    }
+
+    for (int p = 0; p < sizeof(currentPattern); p++)
+    {     
+        currentPattern[p] =9 ;
+    }    
+        simonMode = true;
+        
+        currentLevel = 1;
+
+        patternIndex = 1;
+
+    
+    // also reset millis()  somehow
 
 ////
    
@@ -119,7 +201,7 @@ void handleReset()
 
 
 void handleNotFound(){
-  digitalWrite(led, 1);
+  digitalWrite(LED_BUILTIN, 1);
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -132,7 +214,7 @@ void handleNotFound(){
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 
@@ -159,36 +241,101 @@ if(wifiConnected){
 
 
   ///////////// SPECIFIC CODE
+
+  // show pattern
+
   
-      mag = digitalRead(magnet);
-     // Serial.println(mag);
-      if(mag == 1)
+  if (simonMode == true)
+  {
+
+      for (int thisNote = 0; thisNote < sizeof(pattern); thisNote++) 
       {
-        if (magnetState == false)
-        {
-        // send a reply, to the IP address and port that sent us the packet we received
-        UDP.beginPacket(pcRemoteHost, pcRemotePort);
-        //UDP.write(5);   // write returns nonsense
-        UDP.print("puto");
-        UDP.print(123);
-        UDP.endPacket();
-        Serial.print("request sent, response:");          
-        delay(1000);
-        magnetState = true;    
+      
+//        tone(buzzer, pitches[pattern[thisNote]], noteDuration);
+        //led
+        delay(noteDuration);
       }
+
+      delay(500);
+      simonMode = false;
+      Serial.println("finished melody");    
+
+      buttonState[0] = LOW;
+      buttonState[1] = LOW;
+      buttonState[2] = LOW;
+      buttonState[3] = LOW;  
+
+      digitalWrite(leds[0], LOW);
+      digitalWrite(leds[1], LOW);
+      digitalWrite(leds[2], LOW);
+      digitalWrite(leds[3], LOW);           
+  }
+
+
+
+  /// press buttons
+
+
+ for (int n = 0; n < 3; n++)
+ { 
+    buttonReading[n] = digitalRead(buttons[n]);
+ 
+    if (buttonReading[n] != lastButtonState[n]) {
+      // reset the debouncing timer
+      lastDebounceTime[n] = millis();
     }
-    else
+     
+    if (((millis() - lastDebounceTime[n]) > debounceDelay)&& (buttonReading[n] != buttonState[n]))
     {
-       magnetState = false;
+
+          buttonState[n] = buttonReading[n];
+          lastButtonState[n] = buttonState[n];
+          digitalWrite(leds[n], buttonState[n]);
+          if (buttonState[n] == HIGH)
+          {
+            Serial.println("button pressed");
+            Serial.println(n);
+            //tone(buzzer, pitches[n], 1);
+            if ( n == pattern[patternIndex])
+            {
+              currentPattern[patternIndex]= n;
+              patternIndex += 1;
+              if (patternIndex + 1 == sizeof(pattern))
+              {
+                  Serial.print("level won!");
+                  Serial.println(currentLevel);
+                  currentLevel += 1;
+                  simonMode = true;
+                  UDP.beginPacket(pcRemoteHost, pcRemotePort);
+                  UDP.print("LEVELUP");
+                  UDP.endPacket();
+              }
+            }
+            else
+            {
+               //reset
+               Serial.println("FAIL");
+               UDP.beginPacket(pcRemoteHost, pcRemotePort);
+               UDP.print("FAIL");
+               UDP.endPacket();
+             //  handleReset();
+            }
+            
+          }
     }
 
+   
+    lastButtonState[n] = buttonReading[n];
+ }  
 
-  //////////
+   /// end press buttons
+ 
+  ////////////////////////////////////
     
+      
     }
   }
 }
-
 
 // read UDP incoming packages
 

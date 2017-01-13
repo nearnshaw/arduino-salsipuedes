@@ -10,20 +10,18 @@ const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7016;
-const int localPort = 7016;
-const char* controllerId = "hab13tel";
+const int pcRemotePort = 7017;
+const int localPort = 7017;
+const char* controllerId = "hab13silla";
 
 
 // specific variables
 
 const int led = D5;       //normal led w resistance
-const int magnet = D1;    //reed sensor (magnet) on the digital out pin
-
-int mag = 0;
-boolean magnetState = false;
-
-
+const int silla = D7;    //a makey makey D14, con 10K resistencia
+bool sillaOn = false;    //ya - hace contacto o no
+bool sillaOnOld = false;     //ultima reportada - hace contacto o no
+int offCounter = 0;          // contador, cuantos ciclos desde que se apago
 
 
 WiFiUDP UDP;
@@ -58,8 +56,8 @@ void setup() {
       
 //////// initialise pins
 
-      pinMode(D5,OUTPUT);
-      pinMode(D1,INPUT);
+      pinMode(led,OUTPUT);
+      pinMode(silla,INPUT);
 
 /////
       
@@ -78,8 +76,18 @@ void handleRoot() {
 
 /////// DESCRIPTION 
 
-  server.send(200, "text/plain", "Detecta iman");
 
+  String message = "Si hace contacto en la silla, manda msg a 7016\n\n";
+  message += controllerId;
+  message += "\n\n metodos: \n";
+  message += "/test /reset  \n\n" ;
+  message += "manda a puerto: \n";
+  message += pcRemotePort ;
+  message += "\n recibe en puerto: \n";
+  message += localPort; 
+  server.send(200, "text/plain", message);
+
+  Serial.println("root request");
 ///////
 
   Serial.println("root request");
@@ -101,8 +109,8 @@ void handleReset()
 
 ////  VARIABLES TO RESET
 
-  int mag = 0;
-  boolean magnetState = false;
+bool sillaOn = false;  
+bool sillaOnOld = false; 
 
 ////
    
@@ -160,27 +168,45 @@ if(wifiConnected){
 
   ///////////// SPECIFIC CODE
   
-      mag = digitalRead(magnet);
+      sillaOn = digitalRead(silla);
+
+      
      // Serial.println(mag);
-      if(mag == 1)
+      if(sillaOn == HIGH)
       {
-        if (magnetState == false)
+        if( sillaOnOld == LOW)    // se acaba de prender
         {
-        // send a reply, to the IP address and port that sent us the packet we received
-        UDP.beginPacket(pcRemoteHost, pcRemotePort);
-        //UDP.write(5);   // write returns nonsense
-        UDP.print("puto");
-        UDP.print(123);
-        UDP.endPacket();
-        Serial.print("request sent, response:");          
-        delay(1000);
-        magnetState = true;    
+            UDP.beginPacket(pcRemoteHost, pcRemotePort);
+            //UDP.write(5);   // write returns nonsense
+            UDP.print("silla on");
+            UDP.endPacket();
+            Serial.println("silla se acaba de prender");          
+
+           sillaOnOld = HIGH;
+           delay(500);
+        }
+        offCounter = 0;
       }
-    }
-    else
-    {
-       magnetState = false;
-    }
+      else 
+      {
+          offCounter += 1;
+          sillaOnOld = LOW;  
+                  
+       }
+      
+      //Serial.println(offCounter);   
+      
+      if (offCounter == 50)   // se acaba de apagar
+      {
+
+          UDP.beginPacket(pcRemoteHost, pcRemotePort);
+          //UDP.write(5);   // write returns nonsense
+          UDP.print("silla off");
+          UDP.endPacket();
+          Serial.println("silla se acaba de apagar");          
+
+      }
+
 
 
   //////////

@@ -90,8 +90,18 @@ void setup() {
 
 void handleRoot() {
   delay(500);
-  server.send(200, "text/plain", "Prende 4 relays");
-  server.send(200, "text/plain", "/r1 /r2 /r3 /r4");
+
+
+  String message = "Prende 4 relays   ...ojo al iniciar con current al wemos  \n\n"; 
+  message += controllerId;
+  message += "\n\n metodos: \n";
+  message += "/test /reset /r1 /r2 /r3 /r4  \n\n" ;
+  message += "manda a puerto: \n";
+  message += pcRemotePort ;
+  message += "\n recibe en puerto: \n";
+  message += localPort; 
+  server.send(200, "text/plain", message);
+  
   Serial.println("root request");
 
 }

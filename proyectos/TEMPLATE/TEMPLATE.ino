@@ -73,17 +73,26 @@ void setup() {
 // handle incomimg msg
 
 void handleRoot() {
-  digitalWrite(led, 1);
+  digitalWrite(LED_BUILTIN, 1);
   delay(500);
 
 /////// DESCRIPTION 
 
-  server.send(200, "text/plain", "Detecta iman");
+  String message = "detecta iman\n\n";
+  message += controllerId;
+  message += "\n\n metodos: \n";
+  message += "/test /reset  \n\n" ;
+  message += "manda a puerto: \n";
+  message += pcRemotePort ;
+  message += "\n recibe en puerto: \n";
+  message += localPort; 
+  server.send(200, "text/plain", message);
 
+  Serial.println("root request");
 ///////
 
   Serial.println("root request");
-  digitalWrite(led, 0);
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 void handleTest()
@@ -119,7 +128,7 @@ void handleReset()
 
 
 void handleNotFound(){
-  digitalWrite(led, 1);
+  digitalWrite(LED_BUILTIN, 1);
   String message = "File Not Found\n\n";
   message += "URI: ";
   message += server.uri();
@@ -132,7 +141,7 @@ void handleNotFound(){
     message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
   }
   server.send(404, "text/plain", message);
-  digitalWrite(led, 0);
+  digitalWrite(LED_BUILTIN, 0);
 }
 
 
