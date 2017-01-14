@@ -32,8 +32,11 @@ const unsigned long debounceDelay = 75;    // the debounce time; increase if the
 
 
 
-const int pattern[] = {
-  0, 1, 1
+const int pattern[][5] = { 
+  {0, 1, 1, 1, 1},
+  {3, 2, 1, 3, 2},
+  {1, 3, 2, 1, 2},
+  {2, 2, 0, 2 ,2},
 };
 
 const int noteDuration = 1;   //maybe it can speed up over time,  remove const then
@@ -248,11 +251,12 @@ if(wifiConnected){
   if (simonMode == true)
   {
 
-      for (int thisNote = 0; thisNote < sizeof(pattern); thisNote++) 
+      for (int thisNote = 0; thisNote < patternIndex; thisNote++) 
       {
       
 //        tone(buzzer, pitches[pattern[thisNote]], noteDuration);
         //led
+        Serial.print(pattern[currentLevel][thisNote]);
         delay(noteDuration);
       }
 
@@ -280,7 +284,7 @@ if(wifiConnected){
  { 
     buttonReading[n] = digitalRead(buttons[n]);
  
-    if (buttonReading[n] != lastButtonState[n]) {
+    if (buttonReading[n] != buttonState[n]) {
       // reset the debouncing timer
       lastDebounceTime[n] = millis();
     }
@@ -288,24 +292,25 @@ if(wifiConnected){
     if (((millis() - lastDebounceTime[n]) > debounceDelay)&& (buttonReading[n] != buttonState[n]))
     {
 
-          buttonState[n] = buttonReading[n];
           lastButtonState[n] = buttonState[n];
+          buttonState[n] = buttonReading[n];
           digitalWrite(leds[n], buttonState[n]);
           if (buttonState[n] == HIGH)
           {
             Serial.println("button pressed");
             Serial.println(n);
             //tone(buzzer, pitches[n], 1);
-            if ( n == pattern[patternIndex])
+            if ( n == pattern[currentLevel][patternIndex])
             {
               currentPattern[patternIndex]= n;
               patternIndex += 1;
-              if (patternIndex + 1 == sizeof(pattern))
+              simonMode = true;
+              Serial.print("correct!");
+              if (patternIndex + 1 == sizeof(pattern[currentLevel]))
               {
                   Serial.print("level won!");
                   Serial.println(currentLevel);
                   currentLevel += 1;
-                  simonMode = true;
                   UDP.beginPacket(pcRemoteHost, pcRemotePort);
                   UDP.print("LEVELUP");
                   UDP.endPacket();
