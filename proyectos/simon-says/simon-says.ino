@@ -284,7 +284,7 @@ if(wifiConnected){
  { 
     buttonReading[n] = digitalRead(buttons[n]);
  
-    if (buttonReading[n] != buttonState[n]) {
+    if (buttonReading[n] != lastButtonState[n]) {
       // reset the debouncing timer
       lastDebounceTime[n] = millis();
     }
@@ -292,8 +292,9 @@ if(wifiConnected){
     if (((millis() - lastDebounceTime[n]) > debounceDelay)&& (buttonReading[n] != buttonState[n]))
     {
 
-          lastButtonState[n] = buttonState[n];
+
           buttonState[n] = buttonReading[n];
+          //lastButtonState[n] = buttonState[n];
           digitalWrite(leds[n], buttonState[n]);
           if (buttonState[n] == HIGH)
           {
