@@ -103,9 +103,7 @@ void handleTest()
 
 void handleReset()
 { 
-   String ids = String(controllerId);
-   String rmessage =  "reset " +  ids;
-   server.send(200, "text/plain", rmessage);
+   server.send(200, "text/plain", "reset");
    Serial.println("reset");
 
 ////  VARIABLES TO RESET

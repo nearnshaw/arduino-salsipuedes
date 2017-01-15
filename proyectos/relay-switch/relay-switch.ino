@@ -113,6 +113,21 @@ void handleTest()
 }
 
 
+void handleReset()
+{ 
+   server.send(200, "text/plain", "reset");
+   Serial.println("reset");
+
+////  VARIABLES TO RESET
+
+ 
+
+////
+   
+}
+
+
+
 void handleR1()
 {
    if (R1state)
