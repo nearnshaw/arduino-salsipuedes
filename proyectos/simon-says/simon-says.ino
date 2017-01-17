@@ -26,7 +26,7 @@ const int buttons[] = {D1, D2, D3, D4};       //button w 1k / 10k resistance
 
 const int buzzer = D8;       //buzzer
 
-const int pitches[] = {20, 25, 30, 35};    //NOTE_C4,  NOTE_A4   ...etc
+const int pitches[] = {30, 40, 50, 60};    //NOTE_C4,  NOTE_A4   ...etc
 
 const unsigned long debounceDelay = 75;    // the debounce time; increase if the output flickers
 
@@ -34,12 +34,12 @@ const unsigned long debounceDelay = 75;    // the debounce time; increase if the
 
 const int pattern[][5] = { 
   {0, 1, 1, 1, 1},
-  {3, 2, 1, 3, 2},
+  {2, 2, 1, 3, 2},
   {1, 3, 2, 1, 2},
   {2, 2, 0, 2 ,2},
 };
 
-const int noteDuration = 1;   //maybe it can speed up over time,  remove const then
+const int noteDuration = 250;   //maybe it can speed up over time,  remove const then
 
 
 // specific program variables
@@ -48,9 +48,9 @@ bool simonMode = true;
 
 int currentPattern[] = {9,9,9,9,9};
 
-int patternIndex = 1;
+int patternIndex = 0;
 
-int currentLevel = 1;
+int currentLevel = 0;
 
 int ledState[] = { LOW ,LOW ,LOW ,LOW } ;
 
@@ -111,6 +111,8 @@ void setup() {
       pinMode(buttons[2],INPUT);
       pinMode(buttons[3],INPUT);
 
+    
+
 /////
       
     }
@@ -148,7 +150,7 @@ void handleTest()
 {
    server.send(200, "text/plain", controllerId);
    Serial.println("testing request");
-}
+} 
 
 void handleReset()
 { 
@@ -157,8 +159,6 @@ void handleReset()
    Serial.println("reset");
 
 ////  VARIABLES TO RESET
-
-    simonMode = true;
 
     for (int m = 0; m <4; m++)
     {         
@@ -175,15 +175,15 @@ void handleReset()
 
     }
 
-    for (int p = 0; p < sizeof(currentPattern); p++)
+    for (int p = 0; p < 5; p++)   // p < sizeof(currentPattern)
     {     
         currentPattern[p] =9 ;
     }    
         simonMode = true;
         
-        currentLevel = 1;
+        currentLevel = 0;
 
-        patternIndex = 1;
+        patternIndex = 0;
 
     
     // also reset millis()  somehow
@@ -196,33 +196,75 @@ void handleReset()
 
 //////  HANDLE OTHER CALLS
 
+void handleLevelUp()
+{
+
+
+    for (int m = 0; m <4; m++)
+    {         
+        
+        ledState[m] = LOW;
+        
+        buttonReading[m] = LOW ;
+        
+        buttonState[m] = LOW ;
+        
+        lastButtonState[m] = LOW ;
+        
+        lastDebounceTime[m] = 0 ;
+
+    }
+
+    for (int p = 0; p < 5; p++)   // p < sizeof(currentPattern)
+    {     
+        currentPattern[p] =9 ;
+    }    
+        simonMode = true;
+
+        patternIndex = 0;
+
+}
 
 /////
 
 
 
 
-void handleNotFound(){
-  digitalWrite(LED_BUILTIN, 1);
-  String message = "File Not Found\n\n";
-  message += "URI: ";
-  message += server.uri();
-  message += "\nMethod: ";
-  message += (server.method() == HTTP_GET)?"GET":"POST";
-  message += "\nArguments: ";
-  message += server.args();
-  message += "\n";
-  for (uint8_t i=0; i<server.args(); i++){
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
-  }
-  server.send(404, "text/plain", message);
-  digitalWrite(LED_BUILTIN, 0);
+void showPattern()
+{
+
+   // show pattern
+      int cual = 0;
+      for (int thisNote = 0; thisNote < patternIndex+1; thisNote++) 
+      { 
+        cual = pattern[currentLevel][thisNote];
+        digitalWrite(ledState[cual],HIGH);
+        delay(noteDuration);
+        
+        tone(buzzer, pitches[cual], noteDuration);
+
+        digitalWrite(ledState[cual],LOW);
+        Serial.println(pattern[currentLevel][thisNote]);
+        delay(noteDuration);
+      }
+
+      delay(1000);
+
+
+
+      buttonState[0] = LOW;
+      buttonState[1] = LOW;
+      buttonState[2] = LOW;
+      buttonState[3] = LOW;  
+
+      digitalWrite(leds[0], LOW);
+      digitalWrite(leds[1], LOW);
+      digitalWrite(leds[2], LOW);
+      digitalWrite(leds[3], LOW);           
+  
+      simonMode = false;
+       Serial.println("finished melody");    
 }
-
-
-
-
-
 
 
 
@@ -244,37 +286,13 @@ if(wifiConnected){
 
   ///////////// SPECIFIC CODE
 
-  // show pattern
+ 
 
-  
   if (simonMode == true)
   {
-
-      for (int thisNote = 0; thisNote < patternIndex; thisNote++) 
-      {
-      
-//        tone(buzzer, pitches[pattern[thisNote]], noteDuration);
-        //led
-        Serial.print(pattern[currentLevel][thisNote]);
-        delay(noteDuration);
-      }
-
-      delay(500);
-      simonMode = false;
-      Serial.println("finished melody");    
-
-      buttonState[0] = LOW;
-      buttonState[1] = LOW;
-      buttonState[2] = LOW;
-      buttonState[3] = LOW;  
-
-      digitalWrite(leds[0], LOW);
-      digitalWrite(leds[1], LOW);
-      digitalWrite(leds[2], LOW);
-      digitalWrite(leds[3], LOW);           
+    showPattern();
+    Serial.print("showing pattern");
   }
-
-
 
   /// press buttons
 
@@ -288,42 +306,60 @@ if(wifiConnected){
       lastDebounceTime[n] = millis();
     }
      
-    if (((millis() - lastDebounceTime[n]) > debounceDelay)&& (buttonReading[n] != buttonState[n]))
+    if (((millis() - lastDebounceTime[n]) > debounceDelay) && buttonReading[n] == HIGH && buttonState[n] == LOW)
     {
 
 
           buttonState[n] = buttonReading[n];
-          //lastButtonState[n] = buttonState[n];
           digitalWrite(leds[n], buttonState[n]);
+          lastDebounceTime[n] = millis();
           if (buttonState[n] == HIGH)
           {
             Serial.println("button pressed");
             Serial.println(n);
+            
+            String debugtext = "state: ";
+            debugtext += buttonState[n];
+            debugtext +=  " reading: ";
+            debugtext +=  buttonReading[n];
+            debugtext += " laststate: ";
+            debugtext +=  lastButtonState[n];
+            debugtext += " lastDebounce: ";
+            debugtext +=  lastDebounceTime[n] - millis();
+            Serial.println(debugtext);
+            
             //tone(buzzer, pitches[n], 1);
             if ( n == pattern[currentLevel][patternIndex])
             {
               currentPattern[patternIndex]= n;
               patternIndex += 1;
               simonMode = true;
-              Serial.print("correct!");
-              if (patternIndex + 1 == sizeof(pattern[currentLevel]))
+              Serial.print("correct! pattern index:");
+              Serial.print(patternIndex);
+              Serial.print("current level");
+              Serial.print(currentLevel);             
+              if (patternIndex == 5 )  //== sizeof(pattern[currentLevel])
               {
-                  Serial.print("level won!");
+                  Serial.println("level won!");
                   Serial.println(currentLevel);
-                  currentLevel += 1;
+                  //currentLevel += 1;
                   UDP.beginPacket(pcRemoteHost, pcRemotePort);
                   UDP.print("LEVELUP");
                   UDP.endPacket();
+                  handleLevelUp();
               }
             }
             else
             {
                //reset
                Serial.println("FAIL");
+               Serial.print(patternIndex);
+               Serial.print("current level");
+               Serial.print(currentLevel);                
                UDP.beginPacket(pcRemoteHost, pcRemotePort);
                UDP.print("FAIL");
                UDP.endPacket();
-             //  handleReset();
+               handleReset();
             }
             
           }
@@ -342,95 +378,4 @@ if(wifiConnected){
   }
 }
 
-// read UDP incoming packages
 
-void UDPRead()
-{
-     // if there’s data available, read a packet
-      
-      int packetSize = UDP.parsePacket();
-      if(packetSize)
-      {
-        Serial.println("");
-        Serial.print("Received packet of size ");
-        Serial.println(packetSize);
-        Serial.print("From ");
-        IPAddress remote = UDP.remoteIP();
-        for (int i =0; i < 4; i++)
-        {
-          Serial.print(remote[i], DEC);
-          if (i < 3)
-          {
-            Serial.print(".");
-          }
-        }
-        Serial.print(", port ");
-        Serial.println(UDP.remotePort());
-        
-        // read the packet into packetBufffer
-        UDP.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
-        Serial.println("Contents:");
-        int value = packetBuffer[0]*256 + packetBuffer[1];
-        Serial.println(value);
-        
-        Serial.print("Packet contents: [");
-        Serial.print(packetBuffer[0], packetSize);
-        Serial.println("]");
-        
-        // turn LED on or off depending on value recieved
-        digitalWrite(D5,HIGH);
-        delay(1000);
-        digitalWrite(D5,LOW);        
-      }
-}
-
-
-// connect to UDP – returns true if successful or false if not
-boolean connectUDP(){
-  boolean state = false;
-  
-  Serial.println("");
-  Serial.println("Connecting to UDP”");
-  
-  if(UDP.begin(localPort) == 1){
-    Serial.println("Connection successful");
-    state = true;
-  }
-  else{
-    Serial.println("Connection failed");
-  }
-  
-  return state;
-  }
-// connect to wifi – returns true if successful or false if not
-boolean connectWifi(){
-  boolean state = true;
-  int i = 0;
-  WiFi.begin(ssid, password);
-  Serial.println("");
-  Serial.println("Connecting to WiFi");
-  
-  // Wait for connection
-  Serial.print("Connecting");
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-    if (i > 10){
-      state = false;
-      break;
-    }
-    i++;
-  }
-  if (state){
-    Serial.println("");
-    Serial.print("Connected to ");
-    Serial.println(ssid);
-    Serial.print("IP address: ");
-    Serial.println(WiFi.localIP());
-  }
-  else {
-    Serial.println("");
-    Serial.println("Connection failed.");
-  }
-  return state;
-}
