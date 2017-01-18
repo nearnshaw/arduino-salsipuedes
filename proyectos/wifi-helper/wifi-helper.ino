@@ -19,11 +19,10 @@ const char* controllerId = "helper1";
 
 /////////////////// VARIABLES
 
-const int IN = RX;
-const int OUT = TX;
+
 String incomingData = "";
-
-
+char character;
+int lastCharTime = 0;
 
 /////////////////// END
 
@@ -155,13 +154,27 @@ if(wifiConnected){
 
 /////////////////// ACTUAL CODE
 
-        if (Serial.available() > 0) {
+
+        while (Serial.available()) 
+        {
                 // read the incoming byte:
-              incomingData = Serial.read();
-            
+                character = Serial.read();
+                incomingData = String(incomingData + character);
+                lastCharTime = 0;
+        }
+        
+        lastCharTime +=1; 
+      
+        
+        if (incomingData != "" && lastCharTime > 25) 
+        {
+              incomingData.trim();   //remove spaces & enters
+              
               UDP.beginPacket(pcRemoteHost, pcRemotePort);
               UDP.print(incomingData);
               UDP.endPacket();
+
+              incomingData = "";
         }    
  
 

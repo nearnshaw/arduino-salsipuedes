@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+#include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
 
 // wifi connection variables
 
@@ -20,15 +21,19 @@ const char* controllerId = "hab13simon";
 
 // specific configurable variables
 
-const int leds[] = { D0, D5, D6, D7} ;       //normal led w 230 resistance
+const int leds[] = { D0, D5, D6, D4} ;       //normal led w 230 resistance
 
-const int buttons[] = {D1, D2, D3, D4};       //button w 1k / 10k resistance
+const int buttonPins[] = {D1, D2, D3, D7};       //button w 1k / 10k resistance
 
 const int buzzer = D8;       //buzzer
 
 const int pitches[] = {30, 40, 50, 60};    //NOTE_C4,  NOTE_A4   ...etc
 
 const unsigned long debounceDelay = 75;    // the debounce time; increase if the output flickers
+
+//Bounce buttons[] = { Bounce(), Bounce(), Bounce(), Bounce() };
+
+Bounce buttons[4];
 
 
 
@@ -54,17 +59,6 @@ int currentLevel = 0;
 
 int ledState[] = { LOW ,LOW ,LOW ,LOW } ;
 
-int buttonReading[] = { LOW ,LOW ,LOW ,LOW } ;
-
-int buttonState[] = { LOW ,LOW ,LOW ,LOW } ;
-
-int lastButtonState[] = { LOW ,LOW ,LOW ,LOW } ;
-
-unsigned long lastDebounceTime[] = { 0, 0, 0, 0};  // the last time the output pin was toggled
-
-
-
-//const int buzzer =  ;
 
 
 
@@ -106,13 +100,27 @@ void setup() {
       pinMode(leds[2],OUTPUT);
       pinMode(leds[3],OUTPUT);
       
-      pinMode(buttons[0],INPUT);
-      pinMode(buttons[1],INPUT);
-      pinMode(buttons[2],INPUT);
-      pinMode(buttons[3],INPUT);
+      pinMode(buttonPins[0],INPUT_PULLUP);
+      pinMode(buttonPins[1],INPUT_PULLUP);
+      pinMode(buttonPins[2],INPUT_PULLUP);
+      pinMode(buttonPins[3],INPUT_PULLUP);
 
-    
 
+      buttons[0] = Bounce();
+      buttons[1] = Bounce();
+      buttons[2] = Bounce();
+      buttons[3] = Bounce();
+
+
+      buttons[0].attach(buttonPins[0]);
+      buttons[0].interval(15);
+      buttons[1].attach(buttonPins[1]);
+      buttons[1].interval(15);    
+      buttons[2].attach(buttonPins[2]);
+      buttons[2].interval(15);
+      buttons[3].attach(buttonPins[3]);
+      buttons[4].interval(15);
+      
 /////
       
     }
@@ -165,13 +173,13 @@ void handleReset()
         
         ledState[m] = LOW;
         
-        buttonReading[m] = LOW ;
+//        buttonReading[m] = LOW ;
         
-        buttonState[m] = LOW ;
+//        buttonState[m] = LOW ;
         
-        lastButtonState[m] = LOW ;
+//        lastButtonState[m] = LOW ;
         
-        lastDebounceTime[m] = 0 ;
+//        lastDebounceTime[m] = 0 ;
 
     }
 
@@ -205,13 +213,13 @@ void handleLevelUp()
         
         ledState[m] = LOW;
         
-        buttonReading[m] = LOW ;
+//        buttonReading[m] = LOW ;
         
-        buttonState[m] = LOW ;
+//        buttonState[m] = LOW ;
         
-        lastButtonState[m] = LOW ;
+//        lastButtonState[m] = LOW ;
         
-        lastDebounceTime[m] = 0 ;
+//        lastDebounceTime[m] = 0 ;
 
     }
 
@@ -252,10 +260,10 @@ void showPattern()
 
 
 
-      buttonState[0] = LOW;
-      buttonState[1] = LOW;
-      buttonState[2] = LOW;
-      buttonState[3] = LOW;  
+//      buttonState[0] = LOW;
+//      buttonState[1] = LOW;
+//      buttonState[2] = LOW;
+//      buttonState[3] = LOW;  
 
       digitalWrite(leds[0], LOW);
       digitalWrite(leds[1], LOW);
@@ -297,77 +305,118 @@ if(wifiConnected){
   /// press buttons
 
 
- for (int n = 0; n < 3; n++)
+ for (int n = 0; n < 4; n++)
  { 
-    buttonReading[n] = digitalRead(buttons[n]);
- 
-    if (buttonReading[n] != lastButtonState[n]) {
-      // reset the debouncing timer
-      lastDebounceTime[n] = millis();
-    }
-     
-    if (((millis() - lastDebounceTime[n]) > debounceDelay) && buttonReading[n] == HIGH && buttonState[n] == LOW)
+//    buttonReading[n] = digitalRead(buttons[n]);
+// 
+//    if (buttonReading[n] != lastButtonState[n]) {
+//      // reset the debouncing timer
+//      lastDebounceTime[n] = millis();
+//    }
+
+    if(buttons[n].rose())
     {
-
-
-          buttonState[n] = buttonReading[n];
-          digitalWrite(leds[n], buttonState[n]);
-          lastDebounceTime[n] = millis();
-          if (buttonState[n] == HIGH)
+          digitalWrite(leds[n],HIGH);
+          Serial.println("button pressed");
+          Serial.println(n);
+          tone(buzzer, pitches[n], 1);                           
+    
+     if ( n == pattern[currentLevel][patternIndex])
+        {
+          patternIndex += 1;
+          simonMode = true;
+          Serial.print("correct! pattern index:");
+          Serial.print(patternIndex);
+          Serial.print("current level");
+          Serial.print(currentLevel);             
+          if (patternIndex == 5 )  //== sizeof(pattern[currentLevel])
           {
-            Serial.println("button pressed");
-            Serial.println(n);
-            
-            String debugtext = "state: ";
-            debugtext += buttonState[n];
-            debugtext +=  " reading: ";
-            debugtext +=  buttonReading[n];
-            debugtext += " laststate: ";
-            debugtext +=  lastButtonState[n];
-            debugtext += " lastDebounce: ";
-            debugtext +=  lastDebounceTime[n] - millis();
-            Serial.println(debugtext);
-            
-            //tone(buzzer, pitches[n], 1);
-            if ( n == pattern[currentLevel][patternIndex])
-            {
-              currentPattern[patternIndex]= n;
-              patternIndex += 1;
-              simonMode = true;
-              Serial.print("correct! pattern index:");
-              Serial.print(patternIndex);
-              Serial.print("current level");
-              Serial.print(currentLevel);             
-              if (patternIndex == 5 )  //== sizeof(pattern[currentLevel])
-              {
-                  Serial.println("level won!");
-                  Serial.println(currentLevel);
-                  //currentLevel += 1;
-                  UDP.beginPacket(pcRemoteHost, pcRemotePort);
-                  UDP.print("LEVELUP");
-                  UDP.endPacket();
-                  handleLevelUp();
-              }
-            }
-            else
-            {
-               //reset
-               Serial.println("FAIL");
-               Serial.print(patternIndex);
-               Serial.print("current level");
-               Serial.print(currentLevel);                
-               UDP.beginPacket(pcRemoteHost, pcRemotePort);
-               UDP.print("FAIL");
-               UDP.endPacket();
-               handleReset();
-            }
-            
+              Serial.println("level won!");
+              Serial.println(currentLevel);
+              //currentLevel += 1;
+              UDP.beginPacket(pcRemoteHost, pcRemotePort);
+              UDP.print("LEVELUP");
+              UDP.endPacket();
+              handleLevelUp();
           }
+        }
+        else
+        {
+           //reset
+           Serial.println("FAIL");
+           Serial.print(patternIndex);
+           Serial.print("current level");
+           Serial.print(currentLevel);                
+           UDP.beginPacket(pcRemoteHost, pcRemotePort);
+           UDP.print("FAIL");
+           UDP.endPacket();
+           handleReset();
+        }
+      }
     }
+
+
+//        if (((millis() - lastDebounceTime[n]) > debounceDelay) && buttonReading[n] == HIGH && buttonState[n] == LOW)
+//    {  
+//
+//          buttonState[n] = buttonReading[n];
+//          digitalWrite(leds[n], buttonState[n]);
+//          lastDebounceTime[n] = millis();
+//          if (buttonState[n] == HIGH)
+//          {
+//            Serial.println("button pressed");
+//            Serial.println(n);
+//            
+//            String debugtext = "state: ";
+//            debugtext += buttonState[n];
+//            debugtext +=  " reading: ";
+//            debugtext +=  buttonReading[n];
+//            debugtext += " laststate: ";
+//            debugtext +=  lastButtonState[n];
+//            debugtext += " lastDebounce: ";
+//            debugtext +=  lastDebounceTime[n] - millis();
+//            Serial.println(debugtext);
+//            
+//            //tone(buzzer, pitches[n], 1);
+//            if ( n == pattern[currentLevel][patternIndex])
+//            {
+//              currentPattern[patternIndex]= n;
+//              patternIndex += 1;
+//              simonMode = true;
+//              Serial.print("correct! pattern index:");
+//              Serial.print(patternIndex);
+//              Serial.print("current level");
+//              Serial.print(currentLevel);             
+//              if (patternIndex == 5 )  //== sizeof(pattern[currentLevel])
+//              {
+//                  Serial.println("level won!");
+//                  Serial.println(currentLevel);
+//                  //currentLevel += 1;
+//                  UDP.beginPacket(pcRemoteHost, pcRemotePort);
+//                  UDP.print("LEVELUP");
+//                  UDP.endPacket();
+//                  handleLevelUp();
+//              }
+//            }
+//            else
+//            {
+//               //reset
+//               Serial.println("FAIL");
+//               Serial.print(patternIndex);
+//               Serial.print("current level");
+//               Serial.print(currentLevel);                
+//               UDP.beginPacket(pcRemoteHost, pcRemotePort);
+//               UDP.print("FAIL");
+//               UDP.endPacket();
+//               handleReset();
+//            }
+//            
+//          }
+//    }
 
    
-    lastButtonState[n] = buttonReading[n];
- }  
+  //  lastButtonState[n] = buttonReading[n];
+ //} 
 
    /// end press buttons
  

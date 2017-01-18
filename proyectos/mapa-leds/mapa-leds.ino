@@ -1,8 +1,3 @@
-//#include <ESP8266WiFi.h>
-//#include <WiFiUDP.h>
-//#include <ESP8266WebServer.h>
-//#include <ESP8266mDNS.h>
-
 
 #include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
 
@@ -207,10 +202,10 @@ void loop() {
         //   messages from wemos
         while (Serial1.available()) 
         {
-                // read the incoming byte:
-                character = Serial1.read();
-                incomingData = String(incomingData + character);
-                lastCharTime = 0;
+          // read the incoming byte:
+          character = Serial1.read();
+          incomingData = String(incomingData + character);
+          lastCharTime = 0;
         }
         
         lastCharTime +=1; 
@@ -227,11 +222,7 @@ void loop() {
           {
             handleReset();
           }
-
-
-
-
-           
+     
            incomingData = "";
          }
 

@@ -29,6 +29,10 @@
  Visit http://www.arduino.cc to learn about the Arduino.
  */
 
+
+#include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
+
+
 /*************************************************
 * Public Constants
 *************************************************/
@@ -157,6 +161,13 @@ byte gameMode = MODE_MEMORY; //By default, let's play the memory game
 byte gameBoard[32]; //Contains the combination of buttons as we advance
 byte gameRound = 0; //Counts the number of succesful rounds the player has made it through
 
+//////////  wifi helper
+String incomingData = "";
+char character;
+int lastCharTime = 0;
+
+//////////
+
 void setup()
 {
   //Setup hardware inputs/outputs. These pins are defined in the hardware_versions header file
@@ -200,6 +211,65 @@ void setup()
   play_winner(); // After setup is complete, say hello to the world
 }
 
+
+
+
+void handleReset()
+{ 
+   Serial.println("doiing a reset");
+
+///////////////////  VARIABLES TO RESET
+
+  digitalWrite(LED_RED,LOW);
+  digitalWrite(LED_GREEN,LOW);
+  digitalWrite(LED_BLUE,LOW);
+  digitalWrite(LED_YELLOW,LOW);
+  byte gameRound = 0;
+  
+ /////////////////// END
+   
+}
+
+
+void checkIncoming()
+{
+  
+  
+  
+    //   messages from wemos
+    while (Serial1.available()) 
+    {
+        // read the incoming byte:
+        character = Serial1.read();
+        incomingData = String(incomingData + character);
+        lastCharTime = 0;
+    }
+    
+    lastCharTime +=1; 
+  
+    
+    if (incomingData != "" && lastCharTime > 25) 
+    {
+       // say what you got:
+       Serial.print("I received: ");
+       Serial.println(incomingData);
+       incomingData.trim();   //remove spaces & enters
+
+       if(incomingData.equals("reset"))
+       {
+          handleReset();
+       }
+ 
+       incomingData = "";
+     }
+
+  
+  
+  }
+
+
+
+
 void loop()
 {
   attractMode(); // Blink lights while waiting for user to press a button
@@ -225,6 +295,11 @@ void loop()
 
     play_loser(); // Player lost, play loser tones
   }
+
+  
+  checkIncoming();    // check for incoming messages from wemos
+
+  
 }
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -309,9 +384,9 @@ void add_to_moves(void)
 
   // We have to convert this number, 0 to 3, to CHOICEs
   if(newButton == 0) newButton = CHOICE_RED;
-  else if(newButton == 0) newButton = CHOICE_GREEN;
-  else if(newButton == 0) newButton = CHOICE_BLUE;
-  else if(newButton == 0) newButton = CHOICE_YELLOW;
+  else if(newButton == 1) newButton = CHOICE_GREEN;
+  else if(newButton == 2) newButton = CHOICE_BLUE;
+  else if(newButton == 3) newButton = CHOICE_YELLOW;
 
   gameBoard[gameRound++] = newButton; // Add this new button to the game array
 }
