@@ -1,7 +1,7 @@
-#include <ESP8266WiFi.h>
-#include <WiFiUDP.h>
-#include <ESP8266WebServer.h>
-#include <ESP8266mDNS.h>
+//#include <ESP8266WiFi.h>
+//#include <WiFiUDP.h>
+//#include <ESP8266WebServer.h>
+//#include <ESP8266mDNS.h>
 
 
 #include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
@@ -26,12 +26,12 @@ const char* controllerId = "androMapa";
 /////////////////// VARIABLES
 
 
-const int leds[] = { D0, D5, D6, D4} ;       //normal led w 230 resistance     con D4 hay un tema raro
+const int leds[] = {28, 22, 24, 26} ;       //normal led w 230 resistance     con D4 hay un tema raro
 
-#define buttonsPin1 D1    //button w 1k / 10k resistance
-#define buttonsPin2 D2
-#define buttonsPin3 D3
-#define buttonsPin4 D7
+#define buttonsPin1 23    //button w 1k / 10k resistance
+#define buttonsPin2 25
+#define buttonsPin3 27
+#define buttonsPin4 29
 
 
 Bounce buttons[4];
@@ -41,6 +41,7 @@ Bounce buttons1 = Bounce();
 Bounce buttons2 = Bounce();
 Bounce buttons3 = Bounce();
 
+const int debounceInterval = 25;
 
 
 const int pattern[4][4] = { 
@@ -50,49 +51,33 @@ const int pattern[4][4] = {
   {LOW, HIGH, LOW, HIGH},
 };
 
+
+String incomingData = "";
+char character;
+int lastCharTime = 0;
+
+
 /////////////////// END
 
 
 
-WiFiUDP UDP;
-boolean udpConnected = false;
-char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
-char ReplyBuffer[] = "acknowledged"; // a string to send back
-
-ESP8266WebServer server(80);   //connecto HTTP in
+//WiFiUDP UDP;
+//boolean udpConnected = false;
+//char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
+//char ReplyBuffer[] = "acknowledged"; // a string to send back
+//
+//ESP8266WebServer server(80);   //connecto HTTP in
 
 void setup() {
 
   Serial.begin(115200);
   delay(1000);
-  wifiConnected = connectWifi();
-  // only proceed if wifi connection successful
-  if(wifiConnected){
-    
-    server.on("/", handleRoot);
-    
-    server.on("/test", handleTest);
-    
-    server.on("/reset", handleReset);
-
-    server.onNotFound(handleNotFound);
-
-///////////////////     MORE URL OPTIONS
-
-
-//more calls go here
-
-
-/////////////////// END
-
-    
-    server.begin();
-    Serial.println("HTTP server started");
-    udpConnected = connectUDP();
-    if (udpConnected){
 
       
 ///////////////////   initialise pins
+
+      Serial1.begin(115200);
+
 
       pinMode(leds[0],OUTPUT);
       pinMode(leds[1],OUTPUT);
@@ -105,59 +90,30 @@ void setup() {
       pinMode(buttonsPin1,INPUT_PULLUP);
 
       buttons0.attach(buttonsPin1);
-      buttons0.interval(15);
+      buttons0.interval(debounceInterval);
       buttons1.attach(buttonsPin2);
-      buttons1.interval(15);
+      buttons1.interval(debounceInterval);
       buttons2.attach(buttonsPin3);
-      buttons2.interval(15);      
+      buttons2.interval(debounceInterval);      
       buttons3.attach(buttonsPin4);            
-      buttons3.interval(15);
+      buttons3.interval(debounceInterval);
       
 /////////////////// END
-      
-    }
-  }
+   
 }
 
 
-
-
-// handle incomimg msg
-
-void handleRoot() {
-  digitalWrite(LED_BUILTIN, 1);
-  delay(500);
-
-/////////////////// DESCRIPTION 
-
-  String message = "botones prenden luces en mapa\n\n";
-  message += controllerId;
-  message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
-  message += "manda a puerto: \n";
-  message += pcRemotePort ;
-  message += "\n recibe en puerto: \n";
-  message += localPort; 
-  server.send(200, "text/plain", message);
-
-  Serial.println("root request");
-  
-/////////////////// END
-
-  Serial.println("root request");
-  digitalWrite(LED_BUILTIN, 0);
-}
 
 void handleTest()
 {
-   server.send(200, "text/plain", controllerId);
+//   server.send(200, "text/plain", controllerId);
    Serial.println("testing request");
+   Serial1.println("ok");
 }
 
 void handleReset()
 { 
-   server.send(200, "text/plain", "reset");
-   Serial.println("reset");
+   Serial.println("doiing a reset");
 
 ///////////////////  VARIABLES TO RESET
 
@@ -186,48 +142,17 @@ void handleReset()
 
 
 void loop() {
-  
-// check if the WiFi and UDP connections were successful
-if(wifiConnected){
-    server.handleClient();
-    
-    if(udpConnected){
-      
-      UDPRead();
-      delay(15);
-
+ 
 
 /////////////////// ACTUAL CODE
 
-        int value[4];
         buttons0.update();
         buttons1.update();  
         buttons2.update();
         buttons3.update();
 
         
-//        value[0] =  buttons0.read();
-//        value[1] =  buttons1.read();
-//        value[2] =  buttons2.read();
-//        value[3] =  buttons3.read();
-//
-//
-//        for (int i=0; i<4; i++)
-//        {
-//          if (value[i] == HIGH)
-//          {
-//              Serial.println("pressed button");
-//              Serial.println(i);
-//              for(int j=0 ; j <4 ; j++)       // j = leds
-//              {
-//                int ledState = pattern[i][j];
-//                digitalWrite(leds[j], ledState);
-//                Serial.print(ledState);
-//                
-//              }
-//          }
-//
-//        }
+
 
         if(buttons0.rose())
         {
@@ -237,9 +162,10 @@ if(wifiConnected){
                 int ledState = pattern[0][j];
                 digitalWrite(leds[j], ledState);
                 Serial.print(ledState);
-                
+                Serial1.print("button1");                
               }          
         }
+        
         if(buttons1.rose())
         {
              Serial.println("pressed button");
@@ -248,9 +174,10 @@ if(wifiConnected){
                 int ledState = pattern[1][j];
                 digitalWrite(leds[j], ledState);
                 Serial.print(ledState);
-                
+                Serial1.print("button2");                
               }          
         }
+        
         if(buttons2.rose())
         {
              Serial.println("pressed button");
@@ -259,9 +186,10 @@ if(wifiConnected){
                 int ledState = pattern[2][j];
                 digitalWrite(leds[j], ledState);
                 Serial.print(ledState);
-                
+                Serial1.print("button3");                
               }          
-        }      
+        }
+              
         if(buttons3.rose())
         {
              Serial.println("pressed button");
@@ -270,15 +198,51 @@ if(wifiConnected){
                 int ledState = pattern[3][j];
                 digitalWrite(leds[j], ledState);
                 Serial.print(ledState);
+                Serial1.print("button4");
                 
               }          
         }
 
 
+        //   messages from wemos
+        while (Serial1.available()) 
+        {
+                // read the incoming byte:
+                character = Serial1.read();
+                incomingData = String(incomingData + character);
+                lastCharTime = 0;
+        }
+        
+        lastCharTime +=1; 
+      
+        
+        if (incomingData != "" && lastCharTime > 25) 
+        {
+           // say what you got:
+           Serial.print("I received: ");
+           Serial.println(incomingData);
+           incomingData.trim();   //remove spaces & enters
+
+          if(incomingData.equals("reset"))
+          {
+            handleReset();
+          }
+
+
+
+
+           
+           incomingData = "";
+         }
+
+        
+
+
+
+
 /////////////////// END
     
-    }
-  }
+
 }
 
 
