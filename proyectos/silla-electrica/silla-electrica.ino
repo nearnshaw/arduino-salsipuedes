@@ -46,6 +46,8 @@ void setup() {
     
     server.on("/reset", handleReset);
 
+    server.on("/manual", handleManual);
+
     server.onNotFound(handleNotFound);
     
     server.begin();
@@ -108,13 +110,27 @@ void handleReset()
 
 ////  VARIABLES TO RESET
 
-bool sillaOn = false;  
-bool sillaOnOld = false; 
+sillaOn = false;  
+sillaOnOld = false; 
 
 ////
    
 }
 
+
+void handleManual()
+{
+/////////////////// VARIABLES TO CHANGE MANUALLY
+
+  sillaOn = true;
+  sillaOnOld = false;
+  offCounter = 0;
+  digitalWrite(led, HIGH);
+  
+  
+/////////////////// END
+  
+}
 
 
 //////  HANDLE OTHER CALLS

@@ -51,6 +51,8 @@ void setup() {
     
     server.on("/reset", handleReset);
 
+    server.on("/manual", handleManual);
+
     server.onNotFound(handleNotFound);
 
 ///////////////////     MORE URL OPTIONS
@@ -93,7 +95,7 @@ void handleRoot() {
   String message = "detecta iman\n\n";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
+  message += "/test /reset /manual  \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -126,6 +128,18 @@ void handleReset()
 
 /////////////////// END
    
+}
+
+void handleManual()
+{
+/////////////////// VARIABLES TO CHANGE MANUALLY
+
+  
+//add here  
+  
+  
+/////////////////// END
+  
 }
 
 
