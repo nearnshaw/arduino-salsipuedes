@@ -84,6 +84,8 @@ boolean connectUDP(){
   return state;
   }
 // connect to wifi – returns true if successful or false if not
+
+
 boolean connectWifi(){
   boolean state = true;
   int i = 0;
@@ -96,7 +98,7 @@ boolean connectWifi(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    if (i > 10){
+    if (i > 30){
       state = false;
       break;
     }

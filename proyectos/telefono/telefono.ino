@@ -1,37 +1,182 @@
+#include <ESP8266WiFi.h>
+#include <WiFiUDP.h>
+#include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
+
+
+// wifi connection variables
+
+const char* ssid = "NICTOPIA";
+const char* password = "queganasdejoder";
+boolean wifiConnected = false;
+const char* pcRemoteHost = "192.168.0.15";
+const int pcRemotePort = 7017;
+const int localPort = 7017;
+const char* controllerId = "hab13tel";
+
+
+// specific variables
+
+int in = D0;            // resistencia 230 ohms
+int ledPin = D5;        // resistencia 230 ohms
+int buzzer = D3;
 
 int linetone=0;
-
-
 int needToPrint = 0;
 int count;
-int in = A4;
-int ledPin = 7;
 int lastState = LOW;
 int trueState = LOW;
 long lastStateChangeTime = 0;
 int cleared = 0;
 String fullnum = "";
 
-String objectivenum = "157";
+const String objectivenum = "157";
 
 
 // constants
 
-int dialHasFinishedRotatingAfterMs = 100;
-int debounceDelay = 10;
-int hangPhoneTime = 500;
-int resetTime = 2000000;
+const int dialHasFinishedRotatingAfterMs = 100;
+const int debounceDelay = 10;
+const int hangPhoneTime = 500;
+const int resetTime = 2000000;
+
+
+WiFiUDP UDP;
+boolean udpConnected = false;
+char packetBuffer[UDP_TX_PACKET_MAX_SIZE]; //buffer to hold incoming packet,
+char ReplyBuffer[] = "acknowledged"; // a string to send back
+
+ESP8266WebServer server(80);   //connecto HTTP in
+
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  delay(1000);
+  
+  wifiConnected = connectWifi();
+  // only proceed if wifi connection successful
+  if(wifiConnected){
+    
+    server.on("/", handleRoot);
+    
+    server.on("/test", handleTest);
+    
+    server.on("/reset", handleReset);
+
+    server.on("/manual", handleManual);
+
+    server.onNotFound(handleNotFound);
+    
+    server.begin();
+    Serial.println("HTTP server started");
+    udpConnected = connectUDP();
+    if (udpConnected){
+
+      
+//////// initialise pins
+
+  
   pinMode(in, INPUT);
   pinMode(ledPin, OUTPUT);
   digitalWrite(ledPin, LOW);
+
+/////
+      
+    }
+  }
 }
+
+
+// handle incomimg msg
+
+void handleRoot() {
+  digitalWrite(LED_BUILTIN, 1);
+  delay(500);
+
+/////// DESCRIPTION 
+
+
+  String message = "si telefono marca bien, manda WIN";
+  message += controllerId;
+  message += "\n\n metodos: \n";
+  message += "/test /reset  \n\n" ;
+  message += "manda a puerto: \n";
+  message += pcRemotePort ;
+  message += "\n recibe en puerto: \n";
+  message += localPort; 
+  server.send(200, "text/plain", message);
+
+  Serial.println("root request");
+///////
+
+  Serial.println("root request");
+  digitalWrite(LED_BUILTIN, 0);
+}
+
+void handleTest()
+{
+   server.send(200, "text/plain", controllerId);
+   Serial.println("testing request");
+}
+
+void handleReset()
+{ 
+
+   server.send(200, "text/plain", "reset");
+   Serial.println("reset");
+
+////  VARIABLES TO RESET
+
+linetone=0;
+needToPrint = 0;
+count = 0;
+lastState = LOW;
+trueState = LOW;
+lastStateChangeTime = 0;
+cleared = 0;
+fullnum = "";
+
+////
+   
+}
+
+
+void handleManual()
+{
+/////////////////// VARIABLES TO CHANGE MANUALLY
+
+ fullnum = objectivenum;
+  
+  
+/////////////////// END
+  
+}
+
+
+//////  HANDLE OTHER CALLS
+
+
+/////
+
+
+
+
 
 void loop()
 {
+// check if the WiFi and UDP connections were successful
+if(wifiConnected){
+    server.handleClient();
+    
+    if(udpConnected){
+      
+      UDPRead();
+      delay(15);
+
+
+  ///////////// SPECIFIC CODE
+  
   int reading = digitalRead(in);
   
   if ((millis() - lastStateChangeTime) > dialHasFinishedRotatingAfterMs) {
@@ -112,7 +257,10 @@ void loop()
 //linetone = analogRead(in);
 //Serial.println(linetone);
 
-
+/////////////////// END
+    
+    }
+  }
 }
 
 
