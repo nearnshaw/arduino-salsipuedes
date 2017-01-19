@@ -96,7 +96,7 @@ boolean connectWifi(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    if (i > 10){
+    if (i > 30){
       state = false;
       break;
     }
