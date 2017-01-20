@@ -17,7 +17,7 @@ const char* controllerId = "hab13tel";
 
 // specific variables
 
-int in = D0;            // resistencia 230 ohms
+int in = D1;            // resistencia 230 ohms
 int ledPin = D5;        // resistencia 230 ohms
 int buzzer = D3;
 
@@ -82,7 +82,8 @@ void setup()
   digitalWrite(ledPin, LOW);
 
 /////
-      
+
+  
     }
   }
 }
@@ -136,6 +137,7 @@ trueState = LOW;
 lastStateChangeTime = 0;
 cleared = 0;
 fullnum = "";
+digitalWrite(ledPin, LOW);
 
 ////
    
@@ -178,6 +180,7 @@ if(wifiConnected){
   ///////////// SPECIFIC CODE
   
   int reading = digitalRead(in);
+  digitalWrite(ledPin, reading);
   
   if ((millis() - lastStateChangeTime) > dialHasFinishedRotatingAfterMs) {
     // the dial isn't being dialed, or has just finished being dialed.

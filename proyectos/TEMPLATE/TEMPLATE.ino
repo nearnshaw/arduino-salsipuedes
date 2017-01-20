@@ -19,7 +19,7 @@ const char* controllerId = "hab13tel";
 
 /////////////////// VARIABLES
 
-const int led = D5;       //normal led w resistance
+const int led = D2;       //normal led w resistance
 const int magnet = D1;    //reed sensor (magnet) on the digital out pin
 
 int mag = 0;

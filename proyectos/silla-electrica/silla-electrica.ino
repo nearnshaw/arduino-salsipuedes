@@ -17,8 +17,8 @@ const char* controllerId = "hab13silla";
 
 // specific variables
 
-const int led = D5;       //normal led w resistance
-const int silla = D7;    //a makey makey D14, con 10K resistencia
+const int led = D2;       //normal led w resistance
+const int silla = D1;    //a makey makey D14, con 10K resistencia
 bool sillaOn = false;    //ya - hace contacto o no
 bool sillaOnOld = false;     //ultima reportada - hace contacto o no
 int offCounter = 0;          // contador, cuantos ciclos desde que se apago

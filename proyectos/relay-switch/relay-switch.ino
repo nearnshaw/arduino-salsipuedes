@@ -16,8 +16,8 @@ const int localPort = 7016;
 
 
 //relay pins
-const int R1 = D5;
-const int R2 = D6;
+const int R1 = D1;
+const int R2 = D2;
 const int R3 = D7;
 const int R4 = D8;
 

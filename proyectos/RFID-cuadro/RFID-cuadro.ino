@@ -50,7 +50,7 @@ const char* controllerId = "hab13cuadro";
 #define RST_PIN         D1          // Configurable, see typical pin layout above
 #define SS_PIN          D8         // Configurable, see typical pin layout above
 
-#define laser           D0
+#define laser           D2
 #define buzzPin         D3
 
 bool validado = false;
