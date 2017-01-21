@@ -17,10 +17,12 @@ const char* controllerId = "hab13tel";
 
 // specific variables
 
-int in = D1;            // resistencia 230 ohms
-int ledPin = D5;        // resistencia 230 ohms
-int buzzer = D3;
+int in = A0;            // resistencia 230 ohms
+int ledPin = D1;        // resistencia 230 ohms    o a MOSFET
+int motorPin = D2;         // a relay a motor
 
+
+bool tuboUp = false;
 int linetone=0;
 int needToPrint = 0;
 int count;
@@ -31,6 +33,11 @@ int cleared = 0;
 String fullnum = "";
 
 const String objectivenum = "157";
+bool done = false;
+
+
+int truenoCounter = 0;
+int aguaCounter = 0;
 
 
 // constants
@@ -40,6 +47,8 @@ const int debounceDelay = 10;
 const int hangPhoneTime = 500;
 const int resetTime = 2000000;
 
+const int tiempoAgua = 80;
+const int tiempoTrueno = 100;
 
 WiFiUDP UDP;
 boolean udpConnected = false;
@@ -66,6 +75,10 @@ void setup()
 
     server.on("/manual", handleManual);
 
+    server.on("/trueno", handleTrueno);
+
+    server.on("/agua", handleAgua);
+
     server.onNotFound(handleNotFound);
     
     server.begin();
@@ -79,6 +92,7 @@ void setup()
   
   pinMode(in, INPUT);
   pinMode(ledPin, OUTPUT);
+  pinMode(motorPin, OUTPUT);
   digitalWrite(ledPin, LOW);
 
 /////
@@ -98,10 +112,11 @@ void handleRoot() {
 /////// DESCRIPTION 
 
 
-  String message = "si telefono marca bien, manda WIN";
+  String message = "si telefono marca bien, manda WIN, numero entero mal FAIL, UP o DOWN levanta o baja tubo.";
+  message += "\n\n Tambien prende el motor del gotero /agua y luz de truenos /trueno \n";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
+  message += "/test /reset /manual /agua /trueno  \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -138,7 +153,7 @@ lastStateChangeTime = 0;
 cleared = 0;
 fullnum = "";
 digitalWrite(ledPin, LOW);
-
+done = false;
 ////
    
 }
@@ -157,6 +172,21 @@ void handleManual()
 
 
 //////  HANDLE OTHER CALLS
+
+
+void handleAgua()
+{
+   server.send(200, "text/plain", "tirar gotitas de agua");
+   aguaCounter = tiempoAgua;
+   Serial.print(aguaCounter);
+}
+
+void handleTrueno()
+{
+   server.send(200, "text/plain", "luz de trueno");
+   truenoCounter = random(tiempoTrueno, tiempoTrueno*3);
+   Serial.print(truenoCounter);
+}
 
 
 /////
@@ -178,9 +208,27 @@ if(wifiConnected){
 
 
   ///////////// SPECIFIC CODE
-  
-  int reading = digitalRead(in);
-  digitalWrite(ledPin, reading);
+  int analogin = analogRead(in);
+  int reading = 0;
+
+
+  // passar a 3 opciones
+  if(analogin > 850)
+  {
+      reading = HIGH;    // colgado o ticks
+  }
+  else if (analogin > 400)
+  {
+      reading = 2;   //  descolgado pasivo
+  }
+  else
+  { 
+      reading = LOW;    //en medio de discar
+  }
+
+
+  //Serial.println(reading);
+  //digitalWrite(ledPin, reading);
   
   if ((millis() - lastStateChangeTime) > dialHasFinishedRotatingAfterMs) {
     // the dial isn't being dialed, or has just finished being dialed.
@@ -199,10 +247,13 @@ if(wifiConnected){
 
 
 
-  if (reading != lastState) {
+  if (reading != lastState) 
+  {
     lastStateChangeTime = millis();
   }
-  if ((millis() - lastStateChangeTime) > debounceDelay) {
+  
+  if ((millis() - lastStateChangeTime) > debounceDelay) 
+  {
     // debounce - this happens once it's stablized
       if (reading != trueState) {
       // this means that the switch has either just gone from closed->open or vice versa.
@@ -215,15 +266,33 @@ if(wifiConnected){
     }
   }
 
-//   if (trueState = LOW &&  (millis() - lastStateChangeTime) > hangPhoneTime) {
-//    // no dialing for a while - number resets
-//      if(fullnum.length() > 0)
-//        {
-//          fullnum = "";
-//      
-//          Serial.println("hanging phone");
-//        }
-//   }  
+
+
+
+   if ((millis() - lastStateChangeTime) > hangPhoneTime) 
+   {
+      if (reading == HIGH && tuboUp == true)
+      {
+      // no dialing for a while - number resets
+            fullnum = "";
+            UDP.beginPacket(pcRemoteHost, pcRemotePort);
+            UDP.print("DOWN");
+            UDP.endPacket();
+            Serial.println("hanging phone");
+            tuboUp = false;
+      }
+      else if (reading == 2 && tuboUp == false)
+      {
+         UDP.beginPacket(pcRemoteHost, pcRemotePort);
+         UDP.print("UP");
+         UDP.endPacket();
+         Serial.println("phone up");
+         fullnum = "";
+         tuboUp = true;
+      }
+      
+   }  
+
 
   
   
@@ -232,33 +301,65 @@ if(wifiConnected){
       if(fullnum.length() > 0)
         {
           fullnum = "";
-      
+          UDP.beginPacket(pcRemoteHost, pcRemotePort);
+          UDP.print("FAIL");
+          UDP.endPacket();
           Serial.println("reset number");
         }
    }  
 
-  if (fullnum.equals(objectivenum))
+  if (fullnum.equals(objectivenum) && done == false)
   {
+      UDP.beginPacket(pcRemoteHost, pcRemotePort);
+      UDP.print("WIN");
+      UDP.endPacket();
       Serial.println("Got it!");
       digitalWrite(ledPin, HIGH);
       delay (500);
       digitalWrite(ledPin, LOW);
-      delay (500);
-      digitalWrite(ledPin,  HIGH);
-      delay (500);
-      digitalWrite(ledPin, LOW);
-      delay (500);
-      digitalWrite(ledPin,  HIGH);
-      delay (500);     
+      done = true;  
     
-    }
+   }
+  else if (fullnum.length() > objectivenum.length())
+  {
+      UDP.beginPacket(pcRemoteHost, pcRemotePort);
+      UDP.print("FAIL");
+      UDP.endPacket();
+      Serial.println("wrong number");
+      handleReset();
+   }
+
 
 
   lastState = reading;
 
 
-//linetone = analogRead(in);
-//Serial.println(linetone);
+
+  if (truenoCounter > 0)
+  {
+      truenoCounter -=1;
+      int lit = random(1,3) - 1;
+      digitalWrite(ledPin,lit);
+      Serial.print(lit);
+      if (truenoCounter == 0)
+      {
+        digitalWrite(ledPin,LOW);       
+      }
+  }
+
+
+  if (aguaCounter > 0)
+  {
+     aguaCounter -=1;
+     digitalWrite(motorPin,HIGH);
+     if (aguaCounter == 0)
+     {
+        digitalWrite(motorPin,LOW);     
+     }
+  }
+
+
+
 
 /////////////////// END
     
