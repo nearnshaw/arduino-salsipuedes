@@ -90,6 +90,7 @@ boolean connectWifi(){
   boolean state = true;
   int i = 0;
   WiFi.begin(ssid, password);
+  WiFi.config(ip,gateway,subnet);
   Serial.println("");
   Serial.println("Connecting to WiFi");
   
@@ -98,7 +99,7 @@ boolean connectWifi(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    if (i > 30){
+    if (i > 60){
       state = false;
       break;
     }

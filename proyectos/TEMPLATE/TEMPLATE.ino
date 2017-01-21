@@ -15,6 +15,10 @@ const int localPort = 7016;
 const char* controllerId = "hab13tel";
 
 
+IPAddress ip(192,168,0,128);
+IPAddress gateway(192,168,0,1);
+IPAddress subnet(255,255,255,0); 
+
 /////////////////// END
 
 /////////////////// VARIABLES
@@ -178,9 +182,7 @@ if(wifiConnected){
         {
         // send a reply, to the IP address and port that sent us the packet we received
         UDP.beginPacket(pcRemoteHost, pcRemotePort);
-        //UDP.write(5);   // write returns nonsense
         UDP.print("puto");
-        UDP.print(123);
         UDP.endPacket();
         Serial.print("request sent, response:");          
         delay(1000);
