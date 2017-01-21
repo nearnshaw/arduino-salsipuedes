@@ -15,9 +15,10 @@ const int localPort = 7016;
 const char* controllerId = "hab13tel";
 
 
-IPAddress ip(192,168,0,128);
-IPAddress gateway(192,168,0,1);
-IPAddress subnet(255,255,255,0); 
+IPAddress ip(192,168,0,45);
+IPAddress gateway(192,168,11,1);
+IPAddress subnet(255,0,0,0);//255,255,0); 
+IPAddress dns(10,0,2,200);//(192,168,1,249);//(10,8,0,10);
 
 /////////////////// END
 

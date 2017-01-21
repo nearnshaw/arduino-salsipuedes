@@ -89,8 +89,10 @@ boolean connectUDP(){
 boolean connectWifi(){
   boolean state = true;
   int i = 0;
+  //WiFi.config(ip,gateway,subnet);//,dns);
+  delay(500);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
-  WiFi.config(ip,gateway,subnet);
   Serial.println("");
   Serial.println("Connecting to WiFi");
   
@@ -106,6 +108,7 @@ boolean connectWifi(){
     i++;
   }
   if (state){
+    WiFi.config(ip,gateway,subnet);//,dns);
     Serial.println("");
     Serial.print("Connected to ");
     Serial.println(ssid);
