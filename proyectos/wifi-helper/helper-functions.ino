@@ -45,18 +45,18 @@ void UDPRead()
             Serial.print(".");
           }
         }
-        //Serial.print(", port ");
-        //Serial.println(UDP.remotePort());
+        Serial.print(", port ");
+        Serial.println(UDP.remotePort());
         
         // read the packet into packetBufffer
         UDP.read(packetBuffer,UDP_TX_PACKET_MAX_SIZE);
-        //Serial.println("Contents:");
+        Serial.println("Contents:");
         int value = packetBuffer[0]*256 + packetBuffer[1];
         Serial.println(value);
         
-        //Serial.print("Packet contents: [");
+        Serial.print("Packet contents: [");
         Serial.print(packetBuffer[0], packetSize);
-        //Serial.println("]");
+        Serial.println("]");
         
         // turn LED on or off depending on value recieved
         digitalWrite(D5,HIGH);
@@ -84,9 +84,14 @@ boolean connectUDP(){
   return state;
   }
 // connect to wifi – returns true if successful or false if not
+
+
 boolean connectWifi(){
   boolean state = true;
   int i = 0;
+  //WiFi.config(ip,gateway,subnet);//,dns);
+  delay(500);
+  WiFi.mode(WIFI_STA);
   WiFi.begin(ssid, password);
   Serial.println("");
   Serial.println("Connecting to WiFi");
@@ -96,13 +101,14 @@ boolean connectWifi(){
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    if (i > 30){
+    if (i > 60){
       state = false;
       break;
     }
     i++;
   }
   if (state){
+    WiFi.config(ip,gateway,subnet);//,dns);
     Serial.println("");
     Serial.print("Connected to ");
     Serial.println(ssid);

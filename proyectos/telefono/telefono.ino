@@ -14,6 +14,11 @@ const int pcRemotePort = 7017;
 const int localPort = 7017;
 const char* controllerId = "hab13tel";
 
+IPAddress ip(192,168,0,50);
+IPAddress gateway(192,168,11,1);
+IPAddress subnet(255,0,0,0); 
+IPAddress dns(10,0,2,200);
+
 
 // specific variables
 

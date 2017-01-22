@@ -2,7 +2,7 @@
 #include <pcmRF.h>
 
 #include "SD.h"
-#define SD_ChipSelectPin 4
+#define SD_ChipSelectPin D8
 #include "TMRpcm.h"
 #include "SPI.h"
 
@@ -14,7 +14,7 @@ String audioFile = "numeros-test_converted.wav";
 
 
 void setup(){
-  tmrpcm.speakerPin = 9;
+  tmrpcm.speakerPin = D4;
   Serial.begin(9600);
   if (!SD.begin(SD_ChipSelectPin)) {
     Serial.println("SD fail");
@@ -22,7 +22,7 @@ void setup(){
 }
 
 tmrpcm.setVolume(9);
-tmrpcm.play("audiotest.wav");
+tmrpcm.play("audiotest2.wav");
 }
 
 void loop(){  }
