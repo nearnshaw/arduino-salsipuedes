@@ -38,8 +38,8 @@ const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7016;
-const int localPort = 7016;
+const int pcRemotePort = 1303;
+const int localPort = 1303;
 const char* controllerId = "hab13cuadro";
 
 IPAddress ip(192,168,0,52);

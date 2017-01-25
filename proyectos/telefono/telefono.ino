@@ -10,8 +10,8 @@ const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7017;
-const int localPort = 7017;
+const int pcRemotePort = 1301;
+const int localPort = 1301;
 const char* controllerId = "hab13tel";
 
 IPAddress ip(192,168,0,50);
@@ -49,7 +49,7 @@ int aguaCounter = 0;
 
 const int dialHasFinishedRotatingAfterMs = 100;
 const int debounceDelay = 10;
-const int hangPhoneTime = 500;
+const int hangPhoneTime = 300;
 const int resetTime = 2000000;
 
 const int tiempoAgua = 80;
@@ -301,7 +301,7 @@ if(wifiConnected){
 
   
   
-  if ((millis() - lastStateChangeTime) > resetTime) {
+  if ((millis() - lastStateChangeTime) > resetTime  && done == false) {
     // no dialing for a while - number resets
       if(fullnum.length() > 0)
         {
@@ -325,7 +325,7 @@ if(wifiConnected){
       done = true;  
     
    }
-  else if (fullnum.length() > objectivenum.length())
+  else if (fullnum.length()+1 > objectivenum.length()  && done == false)
   {
       UDP.beginPacket(pcRemoteHost, pcRemotePort);
       UDP.print("FAIL");

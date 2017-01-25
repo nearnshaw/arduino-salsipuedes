@@ -10,8 +10,8 @@ const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7017;
-const int localPort = 7017;
+const int pcRemotePort = 1302;
+const int localPort = 1302;
 const char* controllerId = "hab13silla";
 
 IPAddress ip(192,168,0,51);
@@ -84,7 +84,7 @@ void handleRoot() {
 /////// DESCRIPTION 
 
 
-  String message = "Si hace contacto en la silla, manda msg a 7016\n\n";
+  String message = "Si hace contacto en la silla, manda WIN\n\n";
   message += controllerId;
   message += "\n\n metodos: \n";
   message += "/test /reset  \n\n" ;
@@ -169,7 +169,7 @@ if(wifiConnected){
         {
             UDP.beginPacket(pcRemoteHost, pcRemotePort);
             //UDP.write(5);   // write returns nonsense
-            UDP.print("silla on");
+            UDP.print("SILLA ON");
             UDP.endPacket();
             Serial.println("silla se acaba de prender");          
 
@@ -192,7 +192,7 @@ if(wifiConnected){
 
           UDP.beginPacket(pcRemoteHost, pcRemotePort);
           //UDP.write(5);   // write returns nonsense
-          UDP.print("silla off");
+          UDP.print("SILLA OFF");
           UDP.endPacket();
           Serial.println("silla se acaba de apagar");          
 

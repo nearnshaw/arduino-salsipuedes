@@ -1,27 +1,26 @@
-#include <pcmConfig.h>
-#include <pcmRF.h>
+
 
 #include "SD.h"
-#define SD_ChipSelectPin D8
+#define SD_ChipSelectPin 10
 #include "TMRpcm.h"
 #include "SPI.h"
 
 TMRpcm tmrpcm;
 
 
-String audioFile = "numeros-test_converted.wav";
+String audioFile = "audiotest2.wav";
 
 
 
 void setup(){
-  tmrpcm.speakerPin = D4;
+  tmrpcm.speakerPin = 7;
   Serial.begin(9600);
   if (!SD.begin(SD_ChipSelectPin)) {
     Serial.println("SD fail");
   return;
 }
 
-tmrpcm.setVolume(9);
+tmrpcm.setVolume(6);
 tmrpcm.play("audiotest2.wav");
 }
 
