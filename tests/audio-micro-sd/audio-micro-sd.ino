@@ -20,8 +20,13 @@ void setup(){
   return;
 }
 
-tmrpcm.setVolume(6);
-tmrpcm.play("audiotest2.wav");
+tmrpcm.setVolume(6  );
+
 }
 
-void loop(){  }
+void loop(){ 
+  tmrpcm.play("audiotest2.wav");
+  delay(3000);
+  
+  
+  }
