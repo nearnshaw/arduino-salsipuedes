@@ -7,8 +7,8 @@
 
 /////////////////// wifi connection variables
 
-const char* ssid = "NICTOPIA";
-const char* password = "queganasdejoder";
+const char* ssid = "Anypoint_guest2.4";
+const char* password = "mulesoft123";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
 const int pcRemotePort = 1307;
@@ -28,9 +28,9 @@ IPAddress dns(10,0,2,200);//(192,168,1,249);//(10,8,0,10);
 
 #define PIXEL_PIN    D4    // Digital IO pin connected to the NeoPixels.
 
-#define PIXEL_COUNT 60
+#define PIXEL_COUNT 120
 
-#define pixelsInCircle 60
+#define pixelsInCircle 120
 
 // Parameter 1 = number of pixels in strip,  neopixel stick has 8
 // Parameter 2 = pin number (most are valid)
