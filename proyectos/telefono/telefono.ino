@@ -23,8 +23,7 @@ IPAddress dns(10,0,2,200);
 // specific variables
 
 int in = A0;            // resistencia 230 ohms
-int ledPin = D1;        // resistencia 230 ohms    o a MOSFET
-int motorPin = D2;         // a relay a motor
+
 
 
 bool tuboUp = false;
@@ -41,8 +40,6 @@ const String objectivenum = "157";
 bool done = false;
 
 
-int truenoCounter = 0;
-int aguaCounter = 0;
 
 
 // constants
@@ -52,8 +49,7 @@ const int debounceDelay = 10;
 const int hangPhoneTime = 300;
 const int resetTime = 2000000;
 
-const int tiempoAgua = 80;
-const int tiempoTrueno = 100;
+
 
 WiFiUDP UDP;
 boolean udpConnected = false;
@@ -80,9 +76,6 @@ void setup()
 
     server.on("/manual", handleManual);
 
-    server.on("/trueno", handleTrueno);
-
-    server.on("/agua", handleAgua);
 
     server.onNotFound(handleNotFound);
     
@@ -96,9 +89,7 @@ void setup()
 
   
   pinMode(in, INPUT);
-  pinMode(ledPin, OUTPUT);
-  pinMode(motorPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+
 
 /////
 
@@ -117,8 +108,7 @@ void handleRoot() {
 /////// DESCRIPTION 
 
 
-  String message = "si telefono marca bien, manda WIN, numero entero mal FAIL, UP o DOWN levanta o baja tubo.";
-  message += "\n\n Tambien prende el motor del gotero /agua y luz de truenos /trueno \n";
+  String message = "si telefono marca bien, manda WIN, numero entero mal FAIL, UP o DOWN levanta o baja tubo. \n";
   message += controllerId;
   message += "\n\n metodos: \n";
   message += "/test /reset /manual /agua /trueno  \n\n" ;
@@ -157,7 +147,6 @@ trueState = LOW;
 lastStateChangeTime = 0;
 cleared = 0;
 fullnum = "";
-digitalWrite(ledPin, LOW);
 done = false;
 ////
    
@@ -179,19 +168,7 @@ void handleManual()
 //////  HANDLE OTHER CALLS
 
 
-void handleAgua()
-{
-   server.send(200, "text/plain", "tirar gotitas de agua");
-   aguaCounter = tiempoAgua;
-   Serial.print(aguaCounter);
-}
 
-void handleTrueno()
-{
-   server.send(200, "text/plain", "luz de trueno");
-   truenoCounter = random(tiempoTrueno, tiempoTrueno*3);
-   Serial.print(truenoCounter);
-}
 
 
 /////
@@ -319,9 +296,7 @@ if(wifiConnected){
       UDP.print("WIN");
       UDP.endPacket();
       Serial.println("Got it!");
-      digitalWrite(ledPin, HIGH);
-      delay (500);
-      digitalWrite(ledPin, LOW);
+ 
       done = true;  
     
    }
@@ -340,28 +315,8 @@ if(wifiConnected){
 
 
 
-  if (truenoCounter > 0)
-  {
-      truenoCounter -=1;
-      int lit = random(1,3) - 1;
-      digitalWrite(ledPin,lit);
-      Serial.print(lit);
-      if (truenoCounter == 0)
-      {
-        digitalWrite(ledPin,LOW);       
-      }
-  }
 
 
-  if (aguaCounter > 0)
-  {
-     aguaCounter -=1;
-     digitalWrite(motorPin,HIGH);
-     if (aguaCounter == 0)
-     {
-        digitalWrite(motorPin,LOW);     
-     }
-  }
 
 
 

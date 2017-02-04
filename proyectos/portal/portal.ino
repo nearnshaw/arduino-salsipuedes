@@ -167,6 +167,12 @@ state = 0;
 fase = "off";
 
 
+for(int i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, 0,0,0);
+}
+  
+strip.show(); // Initialize all pixels to 'off'
+
 /////////////////// END
    
 }
@@ -200,6 +206,12 @@ void handleOff()
 {
   state = 0;
   fase = "off";
+  for(int i=0; i< strip.numPixels(); i++) {
+      strip.setPixelColor(i, 0,0,0);
+  }
+  
+  strip.show(); // Initialize all pixels to 'off'
+
 }
 
 void handleShutDown()
@@ -249,15 +261,15 @@ if(wifiConnected){
     {
       if (fase == "start")
       {
-        updateRedWheel(5);
+        updateRedWheel(10);
       }
       else if (fase == "red")
       {
-        updateRedFlow(5);      
+        updateRedFlow(10);      
       }
       else if (fase == "cold")
       {
-        updateColdFlow(5);
+        updateColdFlow(10);
       }
    
     }
@@ -267,6 +279,11 @@ if(wifiConnected){
     }
     
     strip.show();
+
+
+//diferenciar aro de nubes
+// hacer uno que pulse entero el mismo color
+
 
 
 
@@ -283,7 +300,7 @@ if(wifiConnected){
 void updateRedFlow(uint8_t wait) {
     uint16_t i;
 
-    for(i=0; i< strip.numPixels(); i++) {
+    for(int i=0; i< strip.numPixels(); i++) {
       strip.setPixelColor(i, redFlow(i  + pos));
     }
     delay(wait);
@@ -306,7 +323,7 @@ uint32_t redFlow(byte WheelPos) {
 void updateRedWheel(uint8_t wait) {
     uint16_t i;
 
-    for(i=0; i< pixelsInCircle; i++) {
+    for(int i=0; i< pixelsInCircle; i++) {
       int finalPos = (i + pos) % pixelsInCircle; 
       strip.setPixelColor(i, redWheel(finalPos));
     }
@@ -329,7 +346,7 @@ uint32_t redWheel(byte WheelPos)
   }
   else if (realPosition < 180) {
     int newColor = map(realPosition, 90, 180, 40, 0);
-    Serial.println(newColor);
+    //Serial.println(newColor);
     return strip.Color(255, 0, newColor);  // R G B
   }
   else if (realPosition < 270) {
