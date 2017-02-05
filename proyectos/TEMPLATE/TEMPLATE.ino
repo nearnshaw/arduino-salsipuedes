@@ -6,7 +6,7 @@
 
 /////////////////// wifi connection variables
 
-const char* ssid = "NICTOPIA";
+const char* ssid = "NICTOPIAD";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
