@@ -7,8 +7,8 @@
 
 /////////////////// wifi connection variables
 
-const char* ssid = "Anypoint_guest2.4";
-const char* password = "mulesoft123";
+const char* ssid = "NICTOPIA";
+const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
 const int pcRemotePort = 1307;

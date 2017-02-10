@@ -3,6 +3,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
+#include <Adafruit_NeoPixel.h>
 
 /////////////////// wifi connection variables
 
@@ -24,11 +25,23 @@ IPAddress dns(10,0,2,200);//(192,168,1,249);//(10,8,0,10);
 
 /////////////////// VARIABLES
 
-int ledPin = D1;        // resistencia 230 ohms    o a MOSFET
+#define ledPin    D2   // resistencia 230 ohms    o a MOSFET
+
+#define PIXEL_PIN    D1    // Digital IO pin connected to the NeoPixels.
+
+#define PIXEL_COUNT 120
+
+// cambiar el tipo de strip dps!!!
+
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
+
+     
 
 int truenoCounter = 0;
 
 const int tiempoTrueno = 100;
+
+int pixelArray[PIXEL_COUNT];
 
 
 /////////////////// END
@@ -66,6 +79,9 @@ void setup() {
 
 
 //more calls go here
+
+  strip.begin();
+  strip.show(); // Initialize all pixels to 'off'
 
 
 /////////////////// END
@@ -132,6 +148,9 @@ void handleReset()
 
 digitalWrite(ledPin, LOW);
 truenoCounter = 0;
+strip.Color(0, 0, 0);
+strip.show();
+
 /////////////////// END
    
 }
@@ -155,9 +174,13 @@ truenoCounter = 1000;
 
 void handleTrueno()
 {
+   
    server.send(200, "text/plain", "luz de trueno");
    truenoCounter = random(tiempoTrueno, tiempoTrueno*3);
+   Serial.print("trueno ");   
    Serial.print(truenoCounter);
+   server.send(200, "text/plain", "trueno");  
+   updateTrueno(); 
 }
 
 /////////////////// END
@@ -189,14 +212,75 @@ if(wifiConnected){
       if (truenoCounter == 0)
       {
         digitalWrite(ledPin,LOW);       
-      }
+      }  
+  }
+  else
+  {
+          strip.begin();
+          strip.show();
   }
 
-
+  
+  
 /////////////////// END
     
     }
   }
 }
+
+void updateTrueno()
+{
+
+    int shapes = random(1,3);
+    for(int s=0; s < shapes; s++) 
+    {
+  
+      newShapeTrueno();
+  
+      int repetitions = random(1,5);
+      for(int r=0; r < repetitions; r++) 
+      {
+   
+        Serial.println(r);
+         
+        ApplyShape();          
+        strip.show();
+        
+        delay(random(5,25));
+
+        for(int b=0; b< PIXEL_COUNT; b++) {
+          strip.setPixelColor(b,0,0,0);
+          strip.show();
+        }
+        
+        delay(random(10,25));
+      
+      }
+   }
+}
+
+void newShapeTrueno()
+{
+   int lastPx = 0;
+    for(int i=0; i< PIXEL_COUNT; i++) {
+
+      int lumChange = random(0, 255 ) - 127;
+      
+      pixelArray[i] = abs( (lumChange + lastPx) % 255 );
+
+      lastPx = pixelArray[i];
+    }
+}
+
+void ApplyShape()
+{
+     for(int j=0; j< PIXEL_COUNT; j++) {
+      
+      strip.setPixelColor(j, 0,0, pixelArray[j] );
+ 
+    }
+}
+
+
 
 
