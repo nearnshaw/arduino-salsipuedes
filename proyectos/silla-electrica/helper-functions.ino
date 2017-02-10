@@ -103,6 +103,7 @@ boolean connectWifi(){
     Serial.print(".");
     if (i > 60){
       state = false;
+      ESP.Restart();
       break;
     }
     i++;
