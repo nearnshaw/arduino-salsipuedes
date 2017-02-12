@@ -89,12 +89,7 @@
 #define NOTE_D8 4699
 #define NOTE_DS8 4978
 
-#define CHOICE_OFF      0 //Used to control LEDs
-#define CHOICE_NONE     0 //Used to check buttons
-#define CHOICE_RED  (1 << 0)
-#define CHOICE_GREEN    (1 << 1)
-#define CHOICE_BLUE (1 << 2)
-#define CHOICE_YELLOW   (1 << 3)
+
 
 //-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 //The following functions are related to game play only

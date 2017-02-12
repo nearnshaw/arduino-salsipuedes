@@ -75,6 +75,8 @@ port:  1304
 
 #define velocidad_rayos 3    // que tan rapido avanza
 int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
+int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
+
 
 #define PIXEL_COUNT1 6
 #define PIXEL_COUNT2 6
@@ -122,10 +124,14 @@ bool knobsWon = false;
 bool radioWon = false;
 
 int gamesWon = 0;
-
 bool efectoTurbina = false;
-
 int turbinaPos = 0;   //para que giren locas
+
+bool luzRayos = false;
+const int totalRayos = 500;
+int tiempoRayos = 0;
+
+
 
 // Define simon parameters
 #define ROUNDS_TO_WIN      10 //Number of rounds to succesfully remember before you win. 13 is do-able.
@@ -150,6 +156,15 @@ Bounce botonKnobs = Bounce();
 
 const int debounceInterval = 25;   // for all buttons
 
+
+///  del simon, no tocar
+
+#define CHOICE_OFF      0 //Used to control LEDs
+#define CHOICE_NONE     0 //Used to check buttons
+#define CHOICE_RED  (1 << 0)
+#define CHOICE_GREEN    (1 << 1)
+#define CHOICE_BLUE (1 << 2)
+#define CHOICE_YELLOW   (1 << 3)
 
 
 //////////  wifi helper
@@ -280,6 +295,8 @@ void handleReset()
   sillaOn = true;
   simonWon = false;
   knobsWon = false;
+  luzRayos = false;
+  tiempoRayos = 0;
   
   efectoTurbina = false;
   
@@ -312,7 +329,9 @@ void handleOn()
   radioWon = false;
   sillaOn = false;
   efectoTurbina = false;  
-  
+  luzRayos = false;
+  tiempoRayos = 0;
+   
   attractMode(); // After setup is complete, say hello to the world
  /////////////////// END
    
@@ -360,9 +379,13 @@ void handleOff()
   radioWon = false; 
   sillaOn = false; 
   efectoTurbina = false; 
+  luzRayos = false;
+  tiempoRayos = 0;
 
   gamesWon = 0;
   gameRound = 0;
+
+
   
  /////////////////// END
    
@@ -379,6 +402,12 @@ void handleSillaOff()
   sillaOn = false;
 }
 
+
+void handleTrueno()
+{
+  luzRayos = true;
+  tiempoRayos = totalRayos;
+}
 
 
 /////// nexo con wemos
@@ -433,6 +462,10 @@ void checkIncoming()
           handleSillaOff();
        }
 
+       if(incomingData.equals("trueno"))
+       {
+          handleTrueno();
+       }
  
        incomingData = "";
      }
@@ -490,6 +523,12 @@ void loop()
     {
         updateTurbina();  
     }
+
+    if ( luzRayos == true)
+    {
+      rayoPega();
+    }
+  
         
   }
 

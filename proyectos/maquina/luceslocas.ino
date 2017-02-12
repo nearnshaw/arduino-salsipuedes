@@ -86,3 +86,62 @@ void updateTurbina()
 
   
 }
+
+
+void rayoPega()
+{
+
+  if (tiempoRayos >   totalRayos / 4 * 3)
+  {
+    intensidadRayos += 1;
+  }
+  else if (tiempoRayos >   totalRayos / 2)
+  {
+    intensidadRayos -= 1;
+  }
+  else if (tiempoRayos >   totalRayos / 4 )
+  {
+    intensidadRayos += 1;
+  }
+  else
+  {
+    intensidadRayos -= 1;
+  }
+
+
+
+  
+   if (gamesWon == 1)    // ENCHUFE
+   {
+      for(int i=0; i< PIXEL_COUNT1; i++) 
+      {
+          strip1.setPixelColor(i, 0, 0, intensidadRayos);
+      }
+   }
+   else if (gamesWon == 2)
+   {  
+       for(int i=0; i< PIXEL_COUNT2; i++) 
+       {
+          strip2.setPixelColor(i, 0, 0, intensidadRayos);
+       }
+   }
+   else if (gamesWon == 3)
+   {
+       for(int i=0; i< PIXEL_COUNT3; i++) 
+       {
+          strip3.setPixelColor(i, 0, 0, intensidadRayos);
+       }  
+   }
+   else if (gamesWon == 4)
+   {
+       for(int i=0; i< PIXEL_COUNT4; i++) 
+       {
+          strip4.setPixelColor(i, 0, 0, intensidadRayos);
+       } 
+   }
+  
+  tiempoRayos -=1;
+  
+
+}
+
