@@ -105,9 +105,6 @@ void setup() {
 
 ///////////////////     MORE URL OPTIONS
 
-    server.on("/manual", handleManual);
-
-
 /////////////////// END
     
     server.begin();
