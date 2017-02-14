@@ -71,25 +71,24 @@ port:  1304
 
 // parametros de leds
 
-// REVISAR EL TIPO DE LEDS!!!!
+// REVISAR EL TIPO DE LEDS DEL STRIP!!!!
 
 #define velocidad_rayos 3    // que tan rapido avanza
 int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
 int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 
 
-#define PIXEL_COUNT1 6
-#define PIXEL_COUNT2 6
-#define PIXEL_COUNT3 6
-#define PIXEL_COUNT4 6
+#define PIXEL_COUNT1 6  // tramo pared a plasma1
+#define PIXEL_COUNT2 6  // tramo plasma1 a plasma2
+#define PIXEL_COUNT3 6  // tramo plasma2 a plasma3
+#define PIXEL_COUNT4 6 // tramo plasma3 a maquina
 
-#define PIXEL_COUNT5 15
-#define PIXEL_COUNT6 15
+#define PIXEL_COUNT5 15  // turbina 1
+#define PIXEL_COUNT6 15  // turbina 2
 
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(PIXEL_COUNT1, TIRA1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip2 = Adafruit_NeoPixel(PIXEL_COUNT2, TIRA2, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip3 = Adafruit_NeoPixel(PIXEL_COUNT3, TIRA3, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip4 = Adafruit_NeoPixel(PIXEL_COUNT4, TIRA4, NEO_GRB + NEO_KHZ800);
+int total_strip1 = PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3 + PIXEL_COUNT4;
+
+Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(total_strip1, TIRA1, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip5 = Adafruit_NeoPixel(PIXEL_COUNT5, TIRA5, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel strip6 = Adafruit_NeoPixel(PIXEL_COUNT6, TIRA6, NEO_GRB + NEO_KHZ800);
 
@@ -227,12 +226,7 @@ void setup()
 
     strip1.begin();
     strip1.show(); // Initialize all pixels to 'off'
-    strip2.begin();
-    strip2.show(); 
-    strip3.begin();
-    strip3.show(); 
-    strip4.begin();
-    strip4.show(); 
+ 
     strip5.begin();
     strip5.show();
     strip6.begin();
@@ -265,22 +259,12 @@ void handleReset()
   digitalWrite(plasma3,LOW);
 
 
-  for(int i=0; i< PIXEL_COUNT1; i++) 
+  for(int i=0; i< total_strip1; i++) 
   {
       strip1.setPixelColor(i, 0,0,0);
   }
-  for(int i=0; i< PIXEL_COUNT2; i++) 
-  {
-      strip2.setPixelColor(i, 0,0,0);
-  }
-  for(int i=0; i< PIXEL_COUNT3; i++) 
-  {
-      strip3.setPixelColor(i, 0,0,0);
-  }
-  for(int i=0; i< PIXEL_COUNT4; i++) 
-  {
-      strip4.setPixelColor(i, 0,0,0);
-  }
+
+
   for(int i=0; i< PIXEL_COUNT5; i++) 
   {
       strip5.setPixelColor(i, 0,0,0);
@@ -354,18 +338,10 @@ void handleOff()
   digitalWrite(plasma3,LOW);
 
 
-  for(int i=0; i< PIXEL_COUNT1; i++) {
+  for(int i=0; i< total_strip1; i++) {
       strip1.setPixelColor(i, 0,0,0);
   }
-  for(int i=0; i< PIXEL_COUNT2; i++) {
-      strip2.setPixelColor(i, 0,0,0);
-  }
-  for(int i=0; i< PIXEL_COUNT3; i++) {
-      strip3.setPixelColor(i, 0,0,0);
-  }
-  for(int i=0; i< PIXEL_COUNT4; i++) {
-      strip4.setPixelColor(i, 0,0,0);
-  }
+
   for(int i=0; i< PIXEL_COUNT5; i++) {
       strip5.setPixelColor(i, 0,0,0);
   }
