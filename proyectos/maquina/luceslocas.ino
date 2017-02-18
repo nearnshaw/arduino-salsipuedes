@@ -4,40 +4,40 @@ void rayoAvanza()
    {
       for(int i=0; i< PIXELS1; i++) 
       {
-          strip1.setPixelColor(i, 0, 0, 255);
+          strip1.setPixelColor(i, 0, 0, intensidadRayos);
           delay(velocidad_rayos);
       }
    }
-   else if (gamesWon == 2)
+   else if (gamesWon == 2)    // ENCHUFE + RADIO o KNOBS
    {  
        digitalWrite(plasma1, HIGH);  
        for(int i=PIXELS1; i< PIXELS2; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, 255);
+          strip1.setPixelColor(i, 0, 0, intensidadRayos);
           delay(velocidad_rayos);
        }
    }
-   else if (gamesWon == 3)
+   else if (gamesWon == 3)    // ENCHUFE + RADIO + KNOBS
    {
        digitalWrite(plasma2, HIGH);
        for(int i= PIXELS2; i< PIXELS3; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, 255);
+          strip1.setPixelColor(i, 0, 0, intensidadRayos);
           delay(velocidad_rayos);
        }  
    }
-   else if (gamesWon == 4)
+   else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
        digitalWrite(plasma3, HIGH); 
        for(int i= PIXELS3; i< PIXELS4; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, 255);
+          strip1.setPixelColor(i, 0, 0, intensidadRayos);
           delay(velocidad_rayos);
        } 
    }
-   else if (gamesWon == 5)   // PRENDE LAVARRPOAS
+   else if (gamesWon == 5)   // ENCHUFE + RADIO + KNOBS + SIMON + SILLA 
    {
-      efectoTurbina = true;  
+      efectoTurbina = true;    //PRENDE LAVARRPOAS
       Serial1.print("WIN");     
    }
    else
@@ -141,7 +141,11 @@ void rayoPega()
    }
   
   tiempoRayos -=1;
-  
+  if (tiempoRayos == 0)
+  {
+    luzRayos == false;
+    
+  }
 
 }
 
