@@ -2,7 +2,7 @@ void rayoAvanza()
 {
    if (gamesWon == 1)    // ENCHUFE
    {
-      for(int i=0; i< PIXEL_COUNT1; i++) 
+      for(int i=0; i< PIXELS1; i++) 
       {
           strip1.setPixelColor(i, 0, 0, 255);
           delay(velocidad_rayos);
@@ -11,7 +11,7 @@ void rayoAvanza()
    else if (gamesWon == 2)
    {  
        digitalWrite(plasma1, HIGH);  
-       for(int i=PIXEL_COUNT1; i< (PIXEL_COUNT1 + PIXEL_COUNT2); i++) 
+       for(int i=PIXELS1; i< PIXELS2; i++) 
        {
           strip1.setPixelColor(i, 0, 0, 255);
           delay(velocidad_rayos);
@@ -20,7 +20,7 @@ void rayoAvanza()
    else if (gamesWon == 3)
    {
        digitalWrite(plasma2, HIGH);
-       for(int i= PIXEL_COUNT1 + PIXEL_COUNT2; i< (PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3); i++) 
+       for(int i= PIXELS2; i< PIXELS3; i++) 
        {
           strip1.setPixelColor(i, 0, 0, 255);
           delay(velocidad_rayos);
@@ -29,7 +29,7 @@ void rayoAvanza()
    else if (gamesWon == 4)
    {
        digitalWrite(plasma3, HIGH); 
-       for(int i= PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3; i< total_strip1; i++) 
+       for(int i= PIXELS3; i< PIXELS4; i++) 
        {
           strip1.setPixelColor(i, 0, 0, 255);
           delay(velocidad_rayos);
@@ -113,28 +113,28 @@ void rayoPega()
   
    if (gamesWon > 0)    // ENCHUFE
    {
-      for(int i=0; i< PIXEL_COUNT1; i++) 
+      for(int i=0; i< PIXELS1; i++) 
       {
           strip1.setPixelColor(i, 0, 0, intensidadRayos);
       }
    }
    else if (gamesWon  > 1)
    {  
-       for(int i= PIXEL_COUNT1; i< (PIXEL_COUNT1 + PIXEL_COUNT2); i++) 
+       for(int i= PIXELS1; i< PIXELS2; i++) 
        {
           strip1.setPixelColor(i, 0, 0, intensidadRayos);
        }
    }
    else if (gamesWon > 2)
    {
-       for(int i= PIXEL_COUNT1 + PIXEL_COUNT2; i< ( PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3); i++) 
+       for(int i= PIXELS2; i< PIXELS3; i++) 
        {
           strip1.setPixelColor(i, 0, 0, intensidadRayos);
        }  
    }
    else if (gamesWon > 3)
    {
-       for(int i= PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3; i< total_strip1; i++) 
+       for(int i= PIXELS3; i< PIXELS4; i++) 
        {
           strip1.setPixelColor(i, 0, 0, intensidadRayos);
        } 

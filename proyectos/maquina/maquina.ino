@@ -69,6 +69,7 @@ trueno
 #define TIRA3     35
 #define TIRA4     36
 
+
 #define TIRA5     37    //dentro del lavarropas
 #define TIRA6     38    //dentro del lavarropas
 
@@ -101,6 +102,14 @@ int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 #define PIXEL_COUNT2 6  // tramo plasma1 a plasma2
 #define PIXEL_COUNT3 6  // tramo plasma2 a plasma3
 #define PIXEL_COUNT4 6 // tramo plasma3 a maquina
+
+// para tener el index dentro de la tira
+#define PIXELS1 PIXEL_COUNT1                // tramo pared a plasma1
+#define PIXELS2 PIXELS1 + PIXEL_COUNT2      // tramo plasma1 a plasma2
+#define PIXELS3 PIXELS2 + PIXEL_COUNT3      // tramo plasma2 a plasma3
+#define PIXELS4 PIXELS3 + PIXEL_COUNT4     // tramo plasma3 a maquina
+
+
 
 #define PIXEL_COUNT5 15  // turbina 1
 #define PIXEL_COUNT6 15  // turbina 2
@@ -380,6 +389,7 @@ bool checkEnchufe()
       Serial1.print("ON");
       enchufada == true;
       offCounter = 0;
+      gamesWon += 1;
       delay(25);
 
       //  capaz prender un par de luces acá??
@@ -396,7 +406,9 @@ bool checkEnchufe()
    {
       Serial1.print("OFF");
       enchufada == false;
+      handleOff();
       return false;
+
    }
    return enchufada;    //el estado en el que estaba antes  
    
