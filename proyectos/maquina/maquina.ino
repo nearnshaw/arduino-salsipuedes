@@ -4,17 +4,17 @@ ip:  192.168.0.53
 
 port:  1304
 
-manda:
+MANDA:
 
 WIN
 FAIL
 KWIN
 RWIN
 SWIN
-ON   // enchufe
-OFF  // enchufe
+ON   enchufe
+OFF  enchufe
 
-recibe:
+RECIBE:
 
 reset
 ON
@@ -162,6 +162,7 @@ int offCounter = 0;   // contador, ciclos desde que esta desenchufada
 
 
 // Game state variables
+byte gameMode = MODE_MEMORY; //By default, let's play the memory game
 byte gameBoard[20]; //Contains the combination of buttons as we advance
 byte gameRound = 0; //Counts the number of succesful rounds the player has made it through
 
@@ -255,10 +256,93 @@ void setup()
     
   Serial1.begin(115200);
 
+  //Mode checking
+  gameMode = MODE_MEMORY; // By default, we're going to play the memory game
+
 
 }
 
+void handleSillaOn()
+{ 
+  sillaOn = true;
+}
 
+void handleSillaOff()
+{ 
+  sillaOn = false;
+}
+
+
+void handleTrueno()
+{
+  luzRayos = true;
+  tiempoRayos = totalRayos;
+}
+
+
+/////// nexo con wemos
+
+void checkIncoming()
+{
+  
+  
+  
+    //   messages from wemos
+    while (Serial1.available()) 
+    {
+        // read the incoming byte:
+        character = Serial1.read();
+        incomingData = String(incomingData + character);
+        lastCharTime = 0;
+    }
+    
+    lastCharTime +=1; 
+  
+    
+    if (incomingData != "" && lastCharTime > 25) 
+    {
+       // say what you got:
+       Serial.print("I received: ");
+       Serial.println(incomingData);
+       incomingData.trim();   //remove spaces & enters
+
+       if(incomingData.equals("reset"))
+       {
+          handleReset();
+       }
+
+       if(incomingData.equals("ON"))
+       {
+          handleOn();
+       }
+
+       if(incomingData.equals("OFF"))
+       {
+          handleOff();
+       }
+
+
+       if(incomingData.equals("s_on"))
+       {
+          handleSillaOn();
+       }
+
+       if(incomingData.equals("s_off"))
+       {
+          handleSillaOff();
+       }
+
+       if(incomingData.equals("trueno"))
+       {
+          handleTrueno();
+       }
+ 
+       incomingData = "";
+     }
+
+  
+  
+  }
 
 
 void handleReset()
@@ -397,7 +481,6 @@ void handleOff()
 void loop()
 {
   
-  checkEnchufe();
   if ( enchufada == true)
   {
 
@@ -412,6 +495,7 @@ void loop()
       checkRadio();
     }
 
+    //simon
     if (knobsWon == true && radioWon == true &&  simonWon == false)
     {
       attractMode(); // Blink lights while waiting for user to press a button
@@ -423,7 +507,7 @@ void loop()
       delay(250);
     
 
-       if (play_memory() == true) 
+       if (play_memory() == true)   //check - puede recibir requests mientras se juega???
        {
          play_winner(); // Player won, play winner tones
        }
@@ -446,7 +530,7 @@ void loop()
         
   }
 
-    
+  checkEnchufe();     // si esta enchufado
   checkIncoming();    // check for incoming messages from wemos
 }
 
@@ -527,7 +611,7 @@ bool checkEnchufe()
       Serial1.print("OFF");
       enchufada == false;
       return false;
-    }
-    return enchufada;    //el estado en el que estaba antes  
-  } 
+   }
+   return enchufada;    //el estado en el que estaba antes  
+   
 }
