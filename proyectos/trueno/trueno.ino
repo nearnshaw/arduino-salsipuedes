@@ -264,11 +264,16 @@ void newShapeTrueno()
    int lastPx = 0;
     for(int i=0; i< PIXEL_COUNT; i++) {
 
-      int lumChange = random(0, 255 ) - 127;
+      // random y de fuerza exponencial
       
-      pixelArray[i] = abs( (lumChange + lastPx) % 255 );
+      int lumChange = random(0, 15); 
+      pixelArray[i] =  lumChange * lumChange;   //exponencial hasta 225  
 
-      lastPx = pixelArray[i];
+      // cambio gradual
+       
+      //int lumChange = random(0, 255 ) - 127;      
+      //pixelArray[i] = abs( (lumChange + lastPx) % 255 );
+      //lastPx = pixelArray[i];
     }
 }
 
