@@ -10,12 +10,12 @@ const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 1304;
-const int localPort = 1304;
-const char* controllerId = "hab13maquina";
+const int pcRemotePort = 7001;
+const int localPort = 7001;
+const char* controllerId = "androMapa";
 
 
-IPAddress ip(192,168,0,53);
+IPAddress ip(192,168,0,71);
 IPAddress gateway(192,168,11,1);
 IPAddress subnet(255,0,0,0); 
 IPAddress dns(10,0,2,200);
