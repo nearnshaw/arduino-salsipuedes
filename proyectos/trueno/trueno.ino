@@ -1,9 +1,10 @@
+
 #include <ESP8266WiFi.h>
 #include <WiFiUDP.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-#include <Adafruit_NeoPixel.h>
+#include <LPD8806.h>
 
 /////////////////// wifi connection variables
 
@@ -25,16 +26,17 @@ IPAddress dns(10,0,2,200);//(192,168,1,249);//(10,8,0,10);
 
 /////////////////// VARIABLES
 
-#define ledPin    D2   // resistencia 230 ohms    o a MOSFET
+#define ledPin    D3   // resistencia 230 ohms    o a MOSFET
 
-#define PIXEL_PIN    D1    // Digital IO pin connected to the NeoPixels.
+#define dataPin    D1    // Digital IO pin connected to the NeoPixels.
 
-#define PIXEL_COUNT 120
+#define clockPin    D2    // Digital IO pin connected to the NeoPixels.
+
+#define PIXEL_COUNT 10
 
 // cambiar el tipo de strip dps!!!
 
-Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB);
-
+LPD8806 strip = LPD8806(32, dataPin, clockPin);
      
 
 int truenoCounter = 0;
@@ -281,7 +283,7 @@ void ApplyShape()
 {
      for(int j=0; j< PIXEL_COUNT; j++) {
       
-      strip.setPixelColor(j, 0,0, pixelArray[j] );
+      strip.setPixelColor(j, pixelArray[j], pixelArray[j], pixelArray[j] );
  
     }
 }

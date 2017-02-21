@@ -27,7 +27,7 @@ trueno
 */
 
 #include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
-#include <Adafruit_NeoPixel.h>
+#include "FastLED.h"
 
 /*************************************************
 * Public Constants
@@ -35,7 +35,7 @@ trueno
 
 // enchufe principal
 
-#define ENCHUFE 38
+#define ENCHUFE 8
 
 // leds simon
 
@@ -65,15 +65,11 @@ trueno
 
 // tiras de leds
 
-#define TIRA1     33    // solo enchufe
-#define TIRA2     34
-#define TIRA3     35
-#define TIRA4     36
+#define strip1Data     41    // leds trueno
+#define strip1Clock    40   
 
-
-#define TIRA5     37    //dentro del lavarropas
-#define TIRA6     38    //dentro del lavarropas
-
+#define turbinaData     35    // leds trueno
+#define turbinaClock    36   
 
 //knobs to turn
 #define knob1   1
@@ -90,19 +86,19 @@ trueno
 
 
 
+
+
 // parametros de leds
 
-// REVISAR EL TIPO DE LEDS DEL STRIP!!!!
 
-#define velocidad_rayos 3    // que tan rapido avanza
+int velocidad_rayos = 500;    // que tan rapido avanza
 int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
 int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 
-
-#define PIXEL_COUNT1 6  // tramo pared a plasma1
-#define PIXEL_COUNT2 6  // tramo plasma1 a plasma2
-#define PIXEL_COUNT3 6  // tramo plasma2 a plasma3
-#define PIXEL_COUNT4 6 // tramo plasma3 a maquina
+#define PIXEL_COUNT1 3  // tramo pared a plasma1
+#define PIXEL_COUNT2 3  // tramo plasma1 a plasma2
+#define PIXEL_COUNT3 3  // tramo plasma2 a plasma3
+#define PIXEL_COUNT4 1 // tramo plasma3 a maquina
 
 // para tener el index dentro de la tira
 #define PIXELS1 PIXEL_COUNT1                // tramo pared a plasma1
@@ -110,17 +106,17 @@ int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 #define PIXELS3 PIXELS2 + PIXEL_COUNT3      // tramo plasma2 a plasma3
 #define PIXELS4 PIXELS3 + PIXEL_COUNT4     // tramo plasma3 a maquina
 
-
-
 #define PIXEL_COUNT5 15  // turbina 1
 #define PIXEL_COUNT6 15  // turbina 2
 
-int total_strip1 = PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3 + PIXEL_COUNT4;
+const int total_strip1 = PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3 + PIXEL_COUNT4;
+const int total_turbina = PIXEL_COUNT5 + PIXEL_COUNT6;
 
-Adafruit_NeoPixel strip1 = Adafruit_NeoPixel(total_strip1, TIRA1, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip5 = Adafruit_NeoPixel(PIXEL_COUNT5, TIRA5, NEO_GRB + NEO_KHZ800);
-Adafruit_NeoPixel strip6 = Adafruit_NeoPixel(PIXEL_COUNT6, TIRA6, NEO_GRB + NEO_KHZ800);
+//  led strips
+CRGB strip1[total_strip1];
+CRGB ledsTurbina[total_turbina];
 
+const int baseBrightness = 50;   // brightness piso
 
 
 ///////  VALORES
@@ -148,24 +144,23 @@ int valorR3 = 800;
 
 
 bool enchufada = false;
-
-bool sillaOn = false;
+bool knobsWon = true;
+bool radioWon = true;
 bool simonWon = false;
-bool knobsWon = false;
-bool radioWon = false;
+bool sillaOn = false;
 
 int gamesWon = 0;
 bool efectoTurbina = false;
 int turbinaPos = 0;   //para que giren locas
 
 bool luzRayos = false;
-const int totalRayos = 500;
-int tiempoRayos = 0;
+const int totalRayos = 500;    // tiempo total
+int tiempoRayos = 0;    //  cuanto queda de tiempo 
 int offCounter = 0;   // contador, ciclos desde que esta desenchufada
 
 
 // Define simon parameters
-#define ROUNDS_TO_WIN      10 //Number of rounds to succesfully remember before you win. 13 is do-able.
+#define ROUNDS_TO_WIN      4     //Number of rounds to succesfully remember before you win. 13 is do-able.
 #define ENTRY_TIME_LIMIT   8000 //Amount of time to press a button before game times out. 3000ms = 3 sec
 
 #define MODE_MEMORY  0
@@ -210,7 +205,8 @@ int lastCharTime = 0;
 
 void setup()
 {
-  //Setup hardware inputs/outputs. These pins are defined in the hardware_versions header file
+  Serial.begin(115200);
+  Serial1.begin(115200);
 
   //Enable pull ups on inputs
   
@@ -256,15 +252,12 @@ void setup()
   botonKnobs.attach(BUTTON_KNOBS);            
   botonKnobs.interval(debounceInterval);
 
-    strip1.begin();
-    strip1.show(); // Initialize all pixels to 'off'
- 
-    strip5.begin();
-    strip5.show();
-    strip6.begin();
-    strip6.show(); 
-    
-  Serial1.begin(115200);
+  FastLED.addLeds<APA102, strip1Data, strip1Clock, RGB>(strip1, total_strip1);
+  FastLED.addLeds<APA102, turbinaData, turbinaClock, RGB>(ledsTurbina, total_turbina);
+
+  FastLED.setBrightness(baseBrightness);
+
+  lucesOff();    // todas las luces apagadas
 
   //Mode checking
   gameMode = MODE_MEMORY; // By default, we're going to play the memory game
@@ -326,7 +319,8 @@ void loop()
         
   }
 
-  checkEnchufe();     // si esta enchufado
+  FastLED.show();
+  enchufada = checkEnchufe();     // si esta enchufado
   checkIncoming();    // check for incoming messages from wemos
 }
 
@@ -352,6 +346,7 @@ void checkKnobs()
       knobsWon = true;
       gamesWon += 1;
       Serial1.print("KWIN");
+      Serial.print("knobs won");
       rayoAvanza();
     }
   }
@@ -373,6 +368,7 @@ void checkRadio()
     winner_sound();
     radioWon = true;
     gamesWon += 1;
+    Serial.print("radio won");
     Serial1.print("RWIN");
     rayoAvanza();
   }
@@ -388,9 +384,10 @@ bool checkEnchufe()
     if (enchufada == false)
     { 
       Serial1.print("ON");
-      enchufada == true;
+      Serial.print("enchufe on");
       offCounter = 0;
       gamesWon += 1;
+      rayoAvanza();
       delay(25);
 
       //  capaz prender un par de luces acá??
@@ -400,13 +397,13 @@ bool checkEnchufe()
   else 
   {
      offCounter += 1;
-     //Serial.println(offCounter);   
+     Serial.println(offCounter);   
    }
       
    if (offCounter == 50)   // se acaba de apagar
    {
       Serial1.print("OFF");
-      enchufada == false;
+      Serial.print("enchufe off");
       handleOff();
       return false;
 

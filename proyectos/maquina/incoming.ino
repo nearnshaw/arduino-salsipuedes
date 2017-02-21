@@ -89,8 +89,9 @@ void handleReset()
 
   lucesOff();  
   resetState();
-  
-  //attractMode(); // After setup is complete, say hello to the world
+
+  offCounter = 0;
+ 
  /////////////////// END
    
 }
@@ -103,7 +104,8 @@ void handleOn()
 
   lucesOff();
   resetState();
-  
+
+  offCounter = 0;
   enchufada = true;
    
   //attractMode(); // After setup is complete, say hello to the world
@@ -119,7 +121,7 @@ void handleOff()
 
   lucesOff();
   resetState();
-
+  
  /////////////////// END
    
 }
@@ -139,15 +141,15 @@ void lucesOff()
 
 
   for(int i=0; i< total_strip1; i++) {
-      strip1.setPixelColor(i, 0,0,0);
+      strip1[i] = CRGB(0,0,0);
   }
 
   for(int i=0; i< PIXEL_COUNT5; i++) {
-      strip5.setPixelColor(i, 0,0,0);
+      ledsTurbina[i] = CRGB(0,0,0);
   }
-  for(int i=0; i< PIXEL_COUNT6; i++) {
-      strip6.setPixelColor(i, 0,0,0);
-  }
+  FastLED.show();
+  
+  Serial.print("luces off");  
   
 }
 
@@ -160,10 +162,12 @@ void resetState()
   sillaOn = false; 
   efectoTurbina = false; 
   luzRayos = false;
-  tiempoRayos = 0;
-  offCounter = 0;
+  tiempoRayos = 0;  
 
   gamesWon = 0;
   gameRound = 0;
+
+  //offCounter = 0;
+  Serial.print("reset state");
 }
 

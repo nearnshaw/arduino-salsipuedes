@@ -1,10 +1,14 @@
 void rayoAvanza()
 {
+   Serial.print("rayo avanza. gamesWon:");
+   Serial.print(gamesWon);
+     
    if (gamesWon == 1)    // ENCHUFE
    {
       for(int i=0; i< PIXELS1; i++) 
       {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
+          strip1[i] = CRGB(128,128,128);
+          FastLED.show();
           delay(velocidad_rayos);
       }
    }
@@ -13,7 +17,8 @@ void rayoAvanza()
        digitalWrite(plasma1, HIGH);  
        for(int i=PIXELS1; i< PIXELS2; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
+          strip1[i] = CRGB(128,128,128);
+          FastLED.show();
           delay(velocidad_rayos);
        }
    }
@@ -22,7 +27,8 @@ void rayoAvanza()
        digitalWrite(plasma2, HIGH);
        for(int i= PIXELS2; i< PIXELS3; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
+          strip1[i] = CRGB(128,128,128);
+          FastLED.show();
           delay(velocidad_rayos);
        }  
    }
@@ -31,7 +37,8 @@ void rayoAvanza()
        digitalWrite(plasma3, HIGH); 
        for(int i= PIXELS3; i< PIXELS4; i++) 
        {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
+          strip1[i] = CRGB(128,128,128);
+          FastLED.show();
           delay(velocidad_rayos);
        } 
    }
@@ -56,7 +63,7 @@ void updateTurbina()
     
     if (sillaOn == true)
     {
-      if (intensidadTurbina < 255)
+      if (intensidadTurbina < 128)
       {
       intensidadTurbina +=  1;
       }
@@ -65,20 +72,19 @@ void updateTurbina()
     {
       intensidadTurbina = 30;
     }
+    
+    FastLED.setBrightness(intensidadTurbina);
 
 
     for(int i=0; i< PIXEL_COUNT5; i++) {
       int finalPos = (i + turbinaPos) % PIXEL_COUNT5; 
       if (finalPos == PIXEL_COUNT5 || finalPos == PIXEL_COUNT5/2) 
       {
-         strip5.setPixelColor(i, 0,0,0);
-         strip6.setPixelColor(i, 0,0,0);
+         ledsTurbina[i] = CRGB(20,20,20);
       }
       else
       {
-         strip5.setPixelColor(i, 0,0,intensidadTurbina);
-         strip6.setPixelColor(i, 0,0,intensidadTurbina);
-      }
+          ledsTurbina[i] = CRGB(128,128,128);      }
       
     }
     turbinaPos += 1;
@@ -91,61 +97,35 @@ void updateTurbina()
 void rayoPega()
 {
 
-  if (tiempoRayos >   totalRayos / 4 * 3)
+  if (sillaOn == false) // no esta el buildup x la turbina
   {
-    intensidadRayos += 1;
-  }
-  else if (tiempoRayos >   totalRayos / 2)
-  {
-    intensidadRayos -= 1;
-  }
-  else if (tiempoRayos >   totalRayos / 4 )
-  {
-    intensidadRayos += 1;
-  }
-  else
-  {
-    intensidadRayos -= 1;
-  }
-
-
-
+    if (tiempoRayos >   totalRayos / 4 * 3)
+    {
+      intensidadRayos += 1;
+    }
+    else if (tiempoRayos >   totalRayos / 2)
+    {
+      intensidadRayos -= 1;
+    }
+    else if (tiempoRayos >   totalRayos / 4 )
+    {
+      intensidadRayos += 1;
+    }
+    else
+    {
+      intensidadRayos -= 1;
+    }
+    intensidadRayos %= 128;
   
-   if (gamesWon > 0)    // ENCHUFE
-   {
-      for(int i=0; i< PIXELS1; i++) 
-      {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
-      }
-   }
-   else if (gamesWon  > 1)
-   {  
-       for(int i= PIXELS1; i< PIXELS2; i++) 
-       {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
-       }
-   }
-   else if (gamesWon > 2)
-   {
-       for(int i= PIXELS2; i< PIXELS3; i++) 
-       {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
-       }  
-   }
-   else if (gamesWon > 3)
-   {
-       for(int i= PIXELS3; i< PIXELS4; i++) 
-       {
-          strip1.setPixelColor(i, 0, 0, intensidadRayos);
-       } 
-   }
-  
-  tiempoRayos -=1;
-  if (tiempoRayos == 0)
-  {
-    luzRayos == false;
+    FastLED.setBrightness(intensidadRayos);
     
+    tiempoRayos -=1;
+    if (tiempoRayos == 0)
+    {
+      luzRayos == false;
+      FastLED.setBrightness(baseBrightness);
+      
+    }
   }
-
 }
 
