@@ -1,33 +1,51 @@
+/*
+androMapa
+
+ip:  192.168.0.71
+
+port:  7001
+
+MANDA:
+
+-
+
+RECIBE:
+
+reset
+alarma
+
+*/
+
+
+
 
 #include <Bounce2.h>   // https://github.com/thomasfredericks/Bounce2
-
+#include <Adafruit_NeoPixel.h>
 
 // do en regular arduino!
 
 
-/////////////////// wifi connection variables
 
-const char* ssid = "NICTOPIA";
-const char* password = "queganasdejoder";
-boolean wifiConnected = false;
-const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7016;
-const int localPort = 7016;
-const char* controllerId = "androMapa";
-
-
-/////////////////// END
 
 /////////////////// VARIABLES
 
 
-const int leds[] = {28, 22, 24, 26} ;       //normal led w 230 resistance     con D4 hay un tema raro
+bool alarma = false;
 
-#define buttonsPin1 23    //button w 1k / 10k resistance
-#define buttonsPin2 25
-#define buttonsPin3 27
-#define buttonsPin4 29
+const int leds[] = {7, 8, 9, 10} ;       //normal led w 230 resistance     con D4 hay un tema raro
 
+const int redLeds = 11;
+
+#define buttonsPin1 3    //button w 1k / 10k resistance
+#define buttonsPin2 4
+#define buttonsPin3 5
+#define buttonsPin4 6
+
+#define PIXEL_PIN    3    // Digital IO pin connected to the NeoPixels.
+#define PIXEL_COUNT 10
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(PIXEL_COUNT, PIXEL_PIN, NEO_GRB + NEO_KHZ800);
+
+int pos = 0;  // para strip que se mueve
 
 Bounce buttons[4];
 
@@ -78,7 +96,12 @@ void setup() {
       pinMode(leds[1],OUTPUT);
       pinMode(leds[2],OUTPUT);
       pinMode(leds[3],OUTPUT);
-      
+
+      pinMode(redLeds,OUTPUT);
+
+      strip.begin();
+      strip.show(); // Initialize all pixels to 'off'
+         
       pinMode(buttonsPin1,INPUT_PULLUP);
       pinMode(buttonsPin1,INPUT_PULLUP);
       pinMode(buttonsPin1,INPUT_PULLUP);
@@ -106,31 +129,7 @@ void handleTest()
    Serial1.println("ok");
 }
 
-void handleReset()
-{ 
-   Serial.println("doiing a reset");
 
-///////////////////  VARIABLES TO RESET
-
-  digitalWrite(leds[0],LOW);
-  digitalWrite(leds[1],LOW);
-  digitalWrite(leds[2],LOW);
-  digitalWrite(leds[3],LOW);
-  
-  
- /////////////////// END
-   
-}
-
-
-
-///////////////////  HANDLE OTHER CALLS
-
-
-// other call functions go here
-
-
-/////////////////// END
 
 
 
@@ -199,41 +198,32 @@ void loop() {
         }
 
 
-        //   messages from wemos
-        while (Serial1.available()) 
-        {
-          // read the incoming byte:
-          character = Serial1.read();
-          incomingData = String(incomingData + character);
-          lastCharTime = 0;
-        }
-        
-        lastCharTime +=1; 
-      
-        
-        if (incomingData != "" && lastCharTime > 25) 
-        {
-           // say what you got:
-           Serial.print("I received: ");
-           Serial.println(incomingData);
-           incomingData.trim();   //remove spaces & enters
+    if (alarma == true)
+    {
+        digitalWrite(redLeds,HIGH);
+        updateStrip(4);
+    }
 
-          if(incomingData.equals("reset"))
-          {
-            handleReset();
-          }
-     
-           incomingData = "";
-         }
-
-        
-
+    checkIncoming();
 
 
 
 /////////////////// END
-    
+   
+}
 
+void updateStrip(uint8_t wait)
+{
+  
+    for(int i=0; i< strip.numPixels(); i++) 
+    {
+ 
+      int strength = map(i+ pos, 0, strip.numPixels(), 0, 254);
+      
+      strip.setPixelColor(i, 0,0, strength);
+    }
+    delay(wait);
+    pos += 1 % strip.numPixels();
 }
 
 

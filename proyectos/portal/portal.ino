@@ -52,6 +52,9 @@ int pos = 0;
 
 float deg = 360 / pixelsInCircle;
 
+const int totalPulso = 500;
+int tiempoPulso = 0;
+int intensidadPulso = 255;
 //time since start of action?
 
 
@@ -97,6 +100,9 @@ void setup() {
 
     server.on("/cold", handleCold);
 
+    server.on("/pulso", handleCold);
+
+
 //more calls go here
 
 
@@ -134,7 +140,7 @@ void handleRoot() {
   String message = "detecta iman\n\n";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset /manual  \n\n" ;
+  message += "/test /reset /manual /on /off /shutdown /red /cold \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -206,6 +212,7 @@ void handleOff()
 {
   state = 0;
   fase = "off";
+  tiempoPulso = 0;
   for(int i=0; i< strip.numPixels(); i++) {
       strip.setPixelColor(i, 0,0,0);
   }
@@ -218,6 +225,7 @@ void handleShutDown()
 {
   state = 1;
   fase = "apagando";
+  tiempoPulso = 0;
 }
 
 
@@ -234,6 +242,12 @@ void handleCold()
   fase = "cold";
 }
 
+void handlePulso()
+{
+  state = 1;
+  fase = "pulso";
+  tiempoPulso = totalPulso;
+}
 
 
 
@@ -270,6 +284,10 @@ if(wifiConnected){
       else if (fase == "cold")
       {
         updateColdFlow(10);
+      }
+      else if (fase == "pulso")
+      {
+        updatePulso();
       }
    
     }
@@ -389,5 +407,31 @@ uint32_t coldFlow(byte WheelPos) {
   return strip.Color(255 - newColor * 1.5 ,0 ,  255);
 }
 
+void updatePulso()
+{
 
+
+  if (tiempoPulso >   totalPulso / 4 * 3)
+  {
+    intensidadPulso += 1;
+  }
+  else if (tiempoPulso >   totalPulso / 2)
+  {
+    intensidadPulso -= 1;
+  }
+  else if (tiempoPulso >   totalPulso / 4 )
+  {
+    intensidadPulso += 1;
+  }
+  else
+  {
+    intensidadPulso -= 1;
+  }
+
+  for(int i=0; i< pixelsInCircle; i++) 
+  {
+          strip.setPixelColor(i, 0, 0, intensidadPulso);
+  }
+  
+}
 

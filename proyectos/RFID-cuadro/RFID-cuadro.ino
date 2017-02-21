@@ -105,9 +105,6 @@ void setup() {
 
 ///////////////////     MORE URL OPTIONS
 
-    server.on("/manual", handleManual);
-
-
 /////////////////// END
     
     server.begin();
@@ -118,8 +115,8 @@ void setup() {
       
 ///////////////////   initialise pins
  
-  pinMode(buzzPin,OUTPUT);
-  pinMode(laser, OUTPUT);
+    pinMode(buzzPin,OUTPUT);
+    pinMode(laser, OUTPUT);
 /////////////////// END
       
     }
@@ -140,7 +137,7 @@ void handleRoot() {
   String message = "detecta rfid y prende laser";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset /manual  \n\n" ;
+  message += "/test /reset /manual - responde  WIN FAIL \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -220,68 +217,62 @@ if(wifiConnected){
 /////////////////// ACTUAL CODE
 
   // Look for new cards
-  if ( ! mfrc522.PICC_IsNewCardPresent()) 
+  if (validado == false)
   {
-      if (validado == true)
-      {
-
-      }
-
-
-
+    if ( ! mfrc522.PICC_IsNewCardPresent()) 
+    {
+          return;    
+    }
+  
+  
+    // Select one of the cards
+    if ( ! mfrc522.PICC_ReadCardSerial()) 
+    {
       return;
-  }
+    }
 
 
-  // Select one of the cards
-  if ( ! mfrc522.PICC_ReadCardSerial()) 
-  {
-    return;
-  }
+    currentCode = mfrc522.PICC_ReadCardSerial();
+    Serial.println(currentCode);
 
 
-  currentCode = mfrc522.PICC_ReadCardSerial();
-  Serial.println(currentCode);
+    // Dump debug info about the card; PICC_HaltA() is automatically called
+    mfrc522.PICC_DumpToSerial(&(mfrc522.uid));
+  
+    Serial.println(mfrc522.uid.uidByte[0]);
+    Serial.println(mfrc522.uid.uidByte[1]);
+    Serial.println(mfrc522.uid.uidByte[2]);
+    Serial.println(mfrc522.uid.uidByte[3]);
+  
+  
 
 
-  // Dump debug info about the card; PICC_HaltA() is automatically called
-  mfrc522.PICC_DumpToSerial(&(mfrc522.uid));
-
-  Serial.println(mfrc522.uid.uidByte[0]);
-  Serial.println(mfrc522.uid.uidByte[1]);
-  Serial.println(mfrc522.uid.uidByte[2]);
-  Serial.println(mfrc522.uid.uidByte[3]);
-
-
-
-
-  if ( validado == false &&
-       mfrc522.uid.uidByte[0] == byte0 && 
-       mfrc522.uid.uidByte[1] == byte1 &&
-       mfrc522.uid.uidByte[2] == byte2 &&
-       mfrc522.uid.uidByte[3] == byte3 )
-     {  
-
-        Serial.println("WIN");
-        tone(buzzPin,70,600);
-        digitalWrite(laser,HIGH);
-        UDP.beginPacket(pcRemoteHost, pcRemotePort);
-        UDP.print("WIN");
-        UDP.endPacket(); 
-
-        validado = true;
-        delay(2000);
-        return;
-  }
-  else
-  {
-   //
-   Serial.println("FAIL");
-   UDP.beginPacket(pcRemoteHost, pcRemotePort);
-   UDP.print("FAIL");
-   UDP.endPacket(); 
-  }
-
+    if ( mfrc522.uid.uidByte[0] == byte0 && 
+         mfrc522.uid.uidByte[1] == byte1 &&
+         mfrc522.uid.uidByte[2] == byte2 &&
+         mfrc522.uid.uidByte[3] == byte3 )
+       {  
+  
+          Serial.println("WIN");
+          tone(buzzPin,70,600);
+          digitalWrite(laser,HIGH);
+          UDP.beginPacket(pcRemoteHost, pcRemotePort);
+          UDP.print("WIN");
+          UDP.endPacket(); 
+  
+          validado = true;
+          delay(2000);
+          return;
+       }
+       else
+       {
+         //
+         Serial.println("FAIL");
+         UDP.beginPacket(pcRemoteHost, pcRemotePort);
+         UDP.print("FAIL");
+         UDP.endPacket(); 
+       }
+    }  // if validado = false
 /////////////////// END
     
     }

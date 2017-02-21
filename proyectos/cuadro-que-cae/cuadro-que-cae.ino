@@ -4,29 +4,38 @@
 #include <ESP8266mDNS.h>
 
 
+
+
 /////////////////// wifi connection variables
 
 const char* ssid = "NICTOPIA";
 const char* password = "queganasdejoder";
 boolean wifiConnected = false;
 const char* pcRemoteHost = "192.168.0.15";
-const int pcRemotePort = 7016;
-const int localPort = 7016;
-const char* controllerId = "helper1";
+const int pcRemotePort = 1310;
+const int localPort = 1310;
+const char* controllerId = "hab13cae";
 
+IPAddress ip(192,168,0,59);
+IPAddress gateway(192,168,11,1);
+IPAddress subnet(255,0,0,0); 
+IPAddress dns(10,0,2,200);
 
 /////////////////// END
 
 /////////////////// VARIABLES
 
 
-String incomingData = "";
-char character;
-int lastCharTime = 0;
+#define solenoid           D1
+
+bool falling = false;
+bool fallen = false;
+bool adentro = false;
+const int espera = 25 ;   // ms between changes
+const int repeticiones = 3; // sacudidas
+int currentRepeticiones = 0;
 
 /////////////////// END
-
-
 
 WiFiUDP UDP;
 boolean udpConnected = false;
@@ -35,8 +44,9 @@ char ReplyBuffer[] = "acknowledged"; // a string to send back
 
 ESP8266WebServer server(80);   //connecto HTTP in
 
-void setup() {
 
+
+void setup() {
   Serial.begin(115200);
   delay(1000);
   wifiConnected = connectWifi();
@@ -49,16 +59,17 @@ void setup() {
     
     server.on("/reset", handleReset);
 
+    server.on("/manual", handleManual);
+
+    server.on("/tirar", handleManual);
+    
+
     server.onNotFound(handleNotFound);
 
 ///////////////////     MORE URL OPTIONS
 
 
-//more calls go here
-
-
 /////////////////// END
-
     
     server.begin();
     Serial.println("HTTP server started");
@@ -67,9 +78,8 @@ void setup() {
 
       
 ///////////////////   initialise pins
-
-      pinMode(D5,OUTPUT);
-      pinMode(D1,INPUT);
+ 
+  pinMode(solenoid,OUTPUT);
 
 /////////////////// END
       
@@ -88,10 +98,10 @@ void handleRoot() {
 
 /////////////////// DESCRIPTION 
 
-  String message = "detecta iman\n\n";
+  String message = "hace caer cuadro con /tirar ";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
+  message += "/test /reset /manual  \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -119,29 +129,48 @@ void handleReset()
 
 ///////////////////  VARIABLES TO RESET
 
-  int mag = 0;
-  boolean magnetState = false;
+falling = false;
+fallen = false;
+adentro = false;
+digitalWrite(solenoid, LOW);
+currentRepeticiones = 0;
+
 
 /////////////////// END
    
 }
 
 
+void handleManual()
+{
+/////////////////// VARIABLES TO CHANGE MANUALLY
 
-///////////////////  HANDLE OTHER CALLS
-
-
-// other call functions go here
-
-
+  falling = true;
+  adentro = false;
+  digitalWrite(solenoid, LOW);
+  currentRepeticiones = repeticiones;
 /////////////////// END
+  
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 void loop() {
-  
 // check if the WiFi and UDP connections were successful
 if(wifiConnected){
     server.handleClient();
@@ -155,33 +184,35 @@ if(wifiConnected){
 /////////////////// ACTUAL CODE
 
 
-        while (Serial.available()) 
-        {
-                // read the incoming byte:
-                character = Serial.read();
-                incomingData = String(incomingData + character);
-                lastCharTime = 0;
-        }
-        
-        lastCharTime +=1; 
-      
-        
-        if (incomingData != "" && lastCharTime > 25) 
-        {
-              incomingData.trim();   //remove spaces & enters
-              
-              UDP.beginPacket(pcRemoteHost, pcRemotePort);
-              UDP.print(incomingData);
-              UDP.endPacket();
+    if (falling == true)
+    {
 
-              incomingData = "";
-        }    
- 
+      if (adentro == false)
+      {
+        digitalWrite(solenoid, HIGH);
+        adentro = true;
+        delay(espera);  
+      }
+      else    // adentro == true
+      {
+        digitalWrite(solenoid, LOW);
+        adentro = false;
+        currentRepeticiones -=1;
+        delay(espera);  
+      }
+
+      if (currentRepeticiones == 0)
+      {
+        handleReset();
+        fallen == true;
+      }
+
+      
+    }
 
 /////////////////// END
     
     }
   }
 }
-
 
