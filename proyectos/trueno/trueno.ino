@@ -4,7 +4,7 @@
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
 
-#include <LPD8806.h>
+#include "FastLED.h"
 
 /////////////////// wifi connection variables
 
@@ -26,24 +26,19 @@ IPAddress dns(10,0,2,200);//(192,168,1,249);//(10,8,0,10);
 
 /////////////////// VARIABLES
 
-#define ledPin    D3   // resistencia 230 ohms    o a MOSFET
+#define DATA_PIN   D1    // Digital IO pin connected to the NeoPixels.
+#define CLOCK_PIN    D2    // Digital IO pin connected to the NeoPixels.
 
-#define dataPin    D1    // Digital IO pin connected to the NeoPixels.
+#define NUM_LEDS 10
 
-#define clockPin    D2    // Digital IO pin connected to the NeoPixels.
+CRGB leds[NUM_LEDS];
 
-#define PIXEL_COUNT 10
-
-// cambiar el tipo de strip dps!!!
-
-LPD8806 strip = LPD8806(32, dataPin, clockPin);
-     
 
 int truenoCounter = 0;
 
 const int tiempoTrueno = 100;
 
-int pixelArray[PIXEL_COUNT];
+int pixelArray[NUM_LEDS];
 
 
 /////////////////// END
@@ -82,10 +77,8 @@ void setup() {
 
 //more calls go here
 
-  strip.begin();
-  strip.show(); // Initialize all pixels to 'off'
-
-
+   FastLED.addLeds<APA102, DATA_PIN, CLOCK_PIN, RGB>(leds, NUM_LEDS);
+   lightsOff();
 /////////////////// END
 
     
@@ -97,8 +90,6 @@ void setup() {
       
 ///////////////////   initialise pins
 
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
   
 /////////////////// END
       
@@ -148,10 +139,8 @@ void handleReset()
   
 ///////////////////  VARIABLES TO RESET
 
-digitalWrite(ledPin, LOW);
 truenoCounter = 0;
-strip.Color(0, 0, 0);
-strip.show();
+lightsOff();
 
 /////////////////// END
    
@@ -205,21 +194,14 @@ if(wifiConnected){
 
 /////////////////// ACTUAL CODE
   
-   if (truenoCounter > 0)
+  if (truenoCounter > 0)
   {
       truenoCounter -=1;
-      int lit = random(1,3) - 1;
-      digitalWrite(ledPin,lit);
-      Serial.print(lit);
-      if (truenoCounter == 0)
-      {
-        digitalWrite(ledPin,LOW);       
-      }  
+      Serial.print(truenoCounter);
   }
   else
   {
-          strip.begin();
-          strip.show();
+    lightsOff();
   }
 
   
@@ -233,43 +215,45 @@ if(wifiConnected){
 void updateTrueno()
 {
 
-    int shapes = random(1,3);
+    int shapes = random(2,5);
     for(int s=0; s < shapes; s++) 
     {
   
       newShapeTrueno();
-  
-      int repetitions = random(1,5);
+      ApplyShape();          
+      FastLED.show();
+      
+      int repetitions = random(1,10);
       for(int r=0; r < repetitions; r++) 
       {
    
-        Serial.println(r);
-         
-        ApplyShape();          
-        strip.show();
-        
-        delay(random(5,25));
+        FastLED.setBrightness(255);         
+        FastLED.show();      
+        delay(random(5,200));
 
-        for(int b=0; b< PIXEL_COUNT; b++) {
-          strip.setPixelColor(b,0,0,0);
-          strip.show();
-        }
         
-        delay(random(10,25));
+        FastLED.setBrightness(random(5,100));
+        FastLED.show();        
+        delay(random(5,25));     
+
+        FastLED.setBrightness(0);
+        FastLED.show();       
+        delay(random(10,250));
       
       }
    }
+   lightsOff();
 }
 
 void newShapeTrueno()
 {
    int lastPx = 0;
-    for(int i=0; i< PIXEL_COUNT; i++) {
+    for(int i=0; i< NUM_LEDS; i++) {
 
       // random y de fuerza exponencial
       
-      int lumChange = random(0, 15); 
-      pixelArray[i] =  lumChange * lumChange;   //exponencial hasta 225  
+      float lum = random(0,  sqrt(255)); 
+      pixelArray[i] =  lum * lum;   //exponencial hasta 225  
 
       // cambio gradual
        
@@ -281,13 +265,20 @@ void newShapeTrueno()
 
 void ApplyShape()
 {
-     for(int j=0; j< PIXEL_COUNT; j++) {
-      
-      strip.setPixelColor(j, pixelArray[j], pixelArray[j], pixelArray[j] );
- 
-    }
+     for(int j=0; j< NUM_LEDS; j++) 
+     {
+      leds[j] = CRGB(pixelArray[j], pixelArray[j], pixelArray[j]);
+     }
 }
 
 
+void lightsOff()
+{
+        for(int b=0; b< NUM_LEDS; b++) 
+        {
+          leds[b] = CRGB(0,0,0);
+        }
+        FastLED.show();
+}
 
 
