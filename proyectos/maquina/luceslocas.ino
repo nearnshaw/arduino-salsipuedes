@@ -14,7 +14,7 @@ void rayoAvanza()
    }
    else if (gamesWon == 2)    // ENCHUFE + RADIO o KNOBS
    {  
-       digitalWrite(plasma1, HIGH);  
+       digitalWrite(plasma1, LOW);  
        for(int i=PIXELS1; i< PIXELS2; i++) 
        {
           strip1[i] = CRGB(128,128,128);
@@ -24,7 +24,7 @@ void rayoAvanza()
    }
    else if (gamesWon == 3)    // ENCHUFE + RADIO + KNOBS
    {
-       digitalWrite(plasma2, HIGH);
+       digitalWrite(plasma2, LOW);
        for(int i= PIXELS2; i< PIXELS3; i++) 
        {
           strip1[i] = CRGB(128,128,128);
@@ -34,7 +34,7 @@ void rayoAvanza()
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
-       digitalWrite(plasma3, HIGH); 
+       digitalWrite(plasma3, LOW); 
        for(int i= PIXELS3; i< PIXELS4; i++) 
        {
           strip1[i] = CRGB(128,128,128);
@@ -84,7 +84,7 @@ void updateTurbina()
       }
       else
       {
-          ledsTurbina[i] = CRGB(128,128,128);      }
+          ledsTurbina[i] = CRGB(255,255,255);      }
       
     }
     turbinaPos += 1;
@@ -120,9 +120,10 @@ void rayoPega()
     FastLED.setBrightness(intensidadRayos);
     
     tiempoRayos -=1;
-    if (tiempoRayos == 0)
+    if (tiempoRayos < 1)
     {
-      luzRayos == false;
+      luzRayos = false;
+      intensidadRayos = 30; 
       FastLED.setBrightness(baseBrightness);
       
     }

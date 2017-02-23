@@ -91,7 +91,7 @@ void handleReset()
   resetState();
 
   offCounter = 0;
- 
+  delay(10);
  /////////////////// END
    
 }
@@ -121,7 +121,7 @@ void handleOff()
 
   lucesOff();
   resetState();
-  
+  delay(10);
  /////////////////// END
    
 }
@@ -133,12 +133,13 @@ void lucesOff()
   digitalWrite(LED_GREEN,LOW);
   digitalWrite(LED_BLUE,LOW);
   digitalWrite(LED_YELLOW,LOW);
+  delay(10);
 
-
-  digitalWrite(plasma1,LOW);
-  digitalWrite(plasma2,LOW);
-  digitalWrite(plasma3,LOW);
-
+  digitalWrite(plasma1,HIGH);     // x algun motivo funca alrevez el relay module
+  digitalWrite(plasma2,HIGH);
+  digitalWrite(plasma3,HIGH);
+  digitalWrite(plasma4,HIGH);
+  delay(10);
 
   for(int i=0; i< total_strip1; i++) {
       strip1[i] = CRGB(0,0,0);

@@ -92,10 +92,13 @@ void setLEDs(byte leds)
 // Returns one of LED colors (LED_RED, etc.) if successful, 0 if timed out
 byte wait_for_button(void)
 {
+ 
   long startTime = millis(); // Remember the time we started the this loop
-
+  
   while ( (millis() - startTime) < ENTRY_TIME_LIMIT) // Loop until too much time has passed
   {
+    checkIncoming();  // mensajes wemos
+    
     byte button = checkButton();
 
     if (button != CHOICE_NONE)
@@ -243,7 +246,8 @@ void play_loser(void)
 // Show an "attract mode" display while waiting for user to press button.
 void attractMode(void)
 {
-  while(1) 
+  int counterAttract = 5;
+  while(counterAttract > 0) 
   {
     setLEDs(CHOICE_RED);
     delay(100);
@@ -260,5 +264,8 @@ void attractMode(void)
     setLEDs(CHOICE_YELLOW);
     delay(100);
     if (checkButton() != CHOICE_NONE) return;
+
+    counterAttract -= 1;
+    //checkIncoming();
   }
 }

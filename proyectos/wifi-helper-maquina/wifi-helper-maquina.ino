@@ -54,6 +54,16 @@ void setup() {
     
     server.on("/reset", handleReset);
 
+    server.on("/on", handleOn);
+
+    server.on("/off", handleOff);
+
+    server.on("/s_on", handleSOn);
+
+    server.on("/s_off", handleSOff);
+
+    server.on("/trueno", handleTrueno);                    
+
     server.onNotFound(handleNotFound);
 
 ///////////////////     MORE URL OPTIONS
@@ -127,11 +137,39 @@ void handleReset()
   int mag = 0;
   boolean magnetState = false;
 
-/////////////////// END
-   
+/////////////////// END   
 }
 
 
+void handleOn()
+{ 
+   server.send(200, "text/plain", "on");
+   Serial.println("on"); 
+}
+
+void handleSOn()
+{ 
+   server.send(200, "text/plain", "s_on");
+   Serial.println("s_on"); 
+}
+
+void handleOff()
+{ 
+   server.send(200, "text/plain", "off");
+   Serial.println("off"); 
+}
+
+void handleSOff()
+{ 
+   server.send(200, "text/plain", "s_off");
+   Serial.println("s_off"); 
+}
+
+void handleTrueno()
+{ 
+   server.send(200, "text/plain", "trueno");
+   Serial.println("trueno"); 
+}
 
 ///////////////////  HANDLE OTHER CALLS
 

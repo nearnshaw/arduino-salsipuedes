@@ -35,7 +35,7 @@ trueno
 
 // enchufe principal
 
-#define ENCHUFE 8
+#define ENCHUFE_PIN 8
 
 // leds simon
 
@@ -62,6 +62,7 @@ trueno
 #define plasma1   30
 #define plasma2   31
 #define plasma3   32
+#define plasma4   33
 
 // tiras de leds
 
@@ -72,11 +73,11 @@ trueno
 #define turbinaClock    36   
 
 //knobs to turn
-#define knob1   1
-#define knob2   2
-#define knob3   3
+#define knob1   A13
+#define knob2   A14
+#define knob3   A15
 
-#define BUTTON_KNOBS    4
+#define BUTTON_KNOBS    23   //   cambiar!!!  x ahora es la roja de simon says
 
 
 //radio
@@ -89,11 +90,6 @@ trueno
 
 
 // parametros de leds
-
-
-int velocidad_rayos = 500;    // que tan rapido avanza
-int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
-int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 
 #define PIXEL_COUNT1 3  // tramo pared a plasma1
 #define PIXEL_COUNT2 3  // tramo plasma1 a plasma2
@@ -116,7 +112,7 @@ const int total_turbina = PIXEL_COUNT5 + PIXEL_COUNT6;
 CRGB strip1[total_strip1];
 CRGB ledsTurbina[total_turbina];
 
-const int baseBrightness = 50;   // brightness piso
+
 
 
 ///////  VALORES
@@ -144,18 +140,26 @@ int valorR3 = 800;
 
 
 bool enchufada = false;
-bool knobsWon = true;
+bool knobsWon = false;
 bool radioWon = true;
 bool simonWon = false;
 bool sillaOn = false;
 
 int gamesWon = 0;
 bool efectoTurbina = false;
-int turbinaPos = 0;   //para que giren locas
 
+
+
+
+const int baseBrightness = 50;   // brightness piso
+int turbinaPos = 0;   //para que giren locas
 bool luzRayos = false;
-const int totalRayos = 500;    // tiempo total
+const int totalRayos = 1500;    // tiempo total
 int tiempoRayos = 0;    //  cuanto queda de tiempo 
+int velocidad_rayos = 500;    // que tan rapido avanza
+int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
+int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
+
 int offCounter = 0;   // contador, ciclos desde que esta desenchufada
 
 
@@ -210,7 +214,7 @@ void setup()
 
   //Enable pull ups on inputs
   
-  pinMode(ENCHUFE, INPUT);
+  pinMode(ENCHUFE_PIN, INPUT);
   
   pinMode(BUTTON_RED, INPUT_PULLUP);
   pinMode(BUTTON_GREEN, INPUT_PULLUP);
@@ -230,6 +234,7 @@ void setup()
   pinMode(plasma1, OUTPUT);
   pinMode(plasma2, OUTPUT);
   pinMode(plasma3, OUTPUT);
+  pinMode(plasma4, OUTPUT);
 
   pinMode(knob1, INPUT);
   pinMode(knob2, INPUT);
@@ -313,6 +318,7 @@ void loop()
 
     if ( luzRayos == true)
     {
+      Serial.print("rayos");
       rayoPega();
     }
   
@@ -349,6 +355,15 @@ void checkKnobs()
       Serial.print("knobs won");
       rayoAvanza();
     }
+
+      Serial.println("knob values:");
+      Serial.print(k1);
+      Serial.print(" , ");
+      Serial.print(k2);
+      Serial.print(" , ");
+      Serial.print(k3);
+      
+    
   }
   
 }
@@ -378,7 +393,7 @@ void checkRadio()
 bool checkEnchufe()
 {
   
-  bool now = digitalRead(ENCHUFE); 
+  bool now = digitalRead(ENCHUFE_PIN); 
   if (now == HIGH)
   {
     if (enchufada == false)
@@ -397,7 +412,7 @@ bool checkEnchufe()
   else 
   {
      offCounter += 1;
-     Serial.println(offCounter);   
+     //Serial.println(offCounter);   
    }
       
    if (offCounter == 50)   // se acaba de apagar
