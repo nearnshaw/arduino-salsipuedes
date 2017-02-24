@@ -1,11 +1,14 @@
 void handleSillaOn()
 { 
   sillaOn = true;
+  efectoTurbina = true;  
+  Serial.print("silla on");
 }
 
 void handleSillaOff()
 { 
   sillaOn = false;
+  Serial.print("silla off");
 }
 
 
@@ -13,6 +16,7 @@ void handleTrueno()
 {
   luzRayos = true;
   tiempoRayos = totalRayos;
+  Serial.print("trueno");
 }
 
 
@@ -57,13 +61,12 @@ void checkIncoming()
           handleOff();
        }
 
-
-       if(incomingData.equals("s_on"))
+       if(incomingData.equals("son"))
        {
           handleSillaOn();
        }
 
-       if(incomingData.equals("s_off"))
+       if(incomingData.equals("soff"))
        {
           handleSillaOff();
        }

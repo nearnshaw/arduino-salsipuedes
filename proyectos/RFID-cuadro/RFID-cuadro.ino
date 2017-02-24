@@ -27,7 +27,7 @@
  * 
  *
  *
- *Laser                   D0
+ *Laser                   D2
  *Buzzer                  D3
   */
 
@@ -180,7 +180,7 @@ void handleManual()
 
   
   digitalWrite(laser, HIGH); 
-  
+  tone(buzzPin,70,600); 
   
 /////////////////// END
   

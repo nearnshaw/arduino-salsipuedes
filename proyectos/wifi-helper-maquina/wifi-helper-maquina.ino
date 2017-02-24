@@ -58,9 +58,9 @@ void setup() {
 
     server.on("/off", handleOff);
 
-    server.on("/s_on", handleSOn);
+    server.on("/son", handleSOn);
 
-    server.on("/s_off", handleSOff);
+    server.on("/soff", handleSOff);
 
     server.on("/trueno", handleTrueno);                    
 
@@ -149,8 +149,8 @@ void handleOn()
 
 void handleSOn()
 { 
-   server.send(200, "text/plain", "s_on");
-   Serial.println("s_on"); 
+   server.send(200, "text/plain", "son");
+   Serial.println("son"); 
 }
 
 void handleOff()
@@ -161,8 +161,8 @@ void handleOff()
 
 void handleSOff()
 { 
-   server.send(200, "text/plain", "s_off");
-   Serial.println("s_off"); 
+   server.send(200, "text/plain", "soff");
+   Serial.println("soff"); 
 }
 
 void handleTrueno()

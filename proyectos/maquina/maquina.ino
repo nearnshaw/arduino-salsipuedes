@@ -20,8 +20,8 @@ RECIBE:
 reset
 ON
 OFF
-s_on
-s_off
+son      //silla on
+soff     // silla off
 trueno
 
 */
@@ -57,22 +57,9 @@ trueno
 #define BUZZER1  10
 #define BUZZER2  11
 
-// relays a plasmas
-
-#define plasma1   30
-#define plasma2   31
-#define plasma3   32
-#define plasma4   33
-
-// tiras de leds
-
-#define strip1Data     41    // leds trueno
-#define strip1Clock    40   
-
-#define turbinaData     35    // leds trueno
-#define turbinaClock    36   
 
 //knobs to turn
+
 #define knob1   A13
 #define knob2   A14
 #define knob3   A15
@@ -91,6 +78,21 @@ trueno
 
 // parametros de leds
 
+// relays a plasmas
+
+#define plasma1   30
+#define plasma2   31
+#define plasma3   32
+#define plasma4   33
+
+// tiras de leds
+
+#define strip1Data     36    // leds trueno
+#define strip1Clock    35    
+
+#define turbinaData     41    // leds trueno
+#define turbinaClock    40   
+
 #define PIXEL_COUNT1 3  // tramo pared a plasma1
 #define PIXEL_COUNT2 3  // tramo plasma1 a plasma2
 #define PIXEL_COUNT3 3  // tramo plasma2 a plasma3
@@ -102,8 +104,8 @@ trueno
 #define PIXELS3 PIXELS2 + PIXEL_COUNT3      // tramo plasma2 a plasma3
 #define PIXELS4 PIXELS3 + PIXEL_COUNT4     // tramo plasma3 a maquina
 
-#define PIXEL_COUNT5 15  // turbina 1
-#define PIXEL_COUNT6 15  // turbina 2
+#define PIXEL_COUNT5 5  // turbina 1
+#define PIXEL_COUNT6 5  // turbina 2
 
 const int total_strip1 = PIXEL_COUNT1 + PIXEL_COUNT2 + PIXEL_COUNT3 + PIXEL_COUNT4;
 const int total_turbina = PIXEL_COUNT5 + PIXEL_COUNT6;
@@ -141,7 +143,7 @@ int valorR3 = 800;
 
 bool enchufada = false;
 bool knobsWon = false;
-bool radioWon = true;
+bool radioWon = false;
 bool simonWon = false;
 bool sillaOn = false;
 
@@ -152,13 +154,16 @@ bool efectoTurbina = false;
 
 
 const int baseBrightness = 50;   // brightness piso
-int turbinaPos = 0;   //para que giren locas
 bool luzRayos = false;
 const int totalRayos = 1500;    // tiempo total
 int tiempoRayos = 0;    //  cuanto queda de tiempo 
 int velocidad_rayos = 500;    // que tan rapido avanza
-int intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
 int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
+
+int turbinaPos = 0;   //para que giren locas
+int turbinaCounter = 0;  // cada cuantos ciclos gira
+int turbinaSpeed = 300;   // cada cuanto gira
+float intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
 
 int offCounter = 0;   // contador, ciclos desde que esta desenchufada
 
@@ -375,6 +380,12 @@ void checkRadio()
   int r1 = analogRead(radio1);
   int r2 = analogRead(radio2);
   int r3 = analogRead(radio3);
+
+
+  ///    DEBUG   sacar estas lineas
+  r1 = valorR1;
+  r2 = valorR2;
+  r3 = valorR3;
   
   if( abs(r1 - valorR1) < margenKnobs &&
       abs(r2 - valorR2) < margenKnobs &&
@@ -387,6 +398,7 @@ void checkRadio()
     Serial1.print("RWIN");
     rayoAvanza();
   }
+
   
 }
 

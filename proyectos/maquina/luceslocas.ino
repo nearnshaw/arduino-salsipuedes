@@ -41,12 +41,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        } 
-   }
-   else if (gamesWon == 5)   // ENCHUFE + RADIO + KNOBS + SIMON + SILLA 
-   {
-      efectoTurbina = true;    //PRENDE LAVARRPOAS
-      Serial1.print("WIN");     
-   }
+   }  // se queda esperando la silla
    else
    {
     Serial.println("got weird value for gamesWon:");
@@ -63,22 +58,22 @@ void updateTurbina()
     
     if (sillaOn == true)
     {
-      if (intensidadTurbina < 128)
+      if (intensidadTurbina < 255)
       {
-      intensidadTurbina +=  1;
+      intensidadTurbina +=  0.05;
       }
     }
     else   // sillaOn = false
     {
-      intensidadTurbina = 30;
+      intensidadTurbina = baseBrightness;
     }
     
     FastLED.setBrightness(intensidadTurbina);
 
 
-    for(int i=0; i< PIXEL_COUNT5; i++) {
-      int finalPos = (i + turbinaPos) % PIXEL_COUNT5; 
-      if (finalPos == PIXEL_COUNT5 || finalPos == PIXEL_COUNT5/2) 
+    for(int i=0; i< total_turbina; i++) {
+      int finalPos = (i + turbinaPos) % total_turbina; 
+      if (finalPos > total_turbina/3 ) 
       {
          ledsTurbina[i] = CRGB(20,20,20);
       }
@@ -87,8 +82,15 @@ void updateTurbina()
           ledsTurbina[i] = CRGB(255,255,255);      }
       
     }
-    turbinaPos += 1;
-    turbinaPos = turbinaPos % PIXEL_COUNT5;  
+    turbinaCounter =+1;
+
+    if (turbinaCounter == turbinaSpeed)   // actualizar posicion cada x ciclos
+    {     
+          turbinaCounter = 0;
+          turbinaPos += 1;
+          turbinaPos = turbinaPos % PIXEL_COUNT5;        
+    }
+
 
   
 }
