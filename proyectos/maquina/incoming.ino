@@ -92,6 +92,7 @@ void handleReset()
 
   lucesOff();  
   resetState();
+  shutUp();
 
   offCounter = 0;
   delay(10);
@@ -125,6 +126,7 @@ void handleOff()
   lucesOff();
   resetState();
   delay(10);
+  shutUp();
  /////////////////// END
    
 }
@@ -143,7 +145,7 @@ void lucesOff()
   digitalWrite(plasma3,HIGH);
   digitalWrite(plasma4,HIGH);
   delay(10);
-
+  
   for(int i=0; i< total_strip1; i++) {
       strip1[i] = CRGB(0,0,0);
   }
@@ -173,5 +175,10 @@ void resetState()
 
   //offCounter = 0;
   Serial.print("reset state");
+}
+
+void shutUp()
+{
+    noTone(BUZZER);
 }
 

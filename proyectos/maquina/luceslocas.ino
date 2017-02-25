@@ -34,13 +34,18 @@ void rayoAvanza()
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
+       digitalWrite(LED_RED,LOW);
+       digitalWrite(LED_GREEN,LOW);
+       digitalWrite(LED_BLUE,LOW);
+       digitalWrite(LED_YELLOW,LOW);
+       
        digitalWrite(plasma3, LOW); 
        for(int i= PIXELS3; i< PIXELS4; i++) 
        {
           strip1[i] = CRGB(128,128,128);
           FastLED.show();
           delay(velocidad_rayos);
-       } 
+       }
    }  // se queda esperando la silla
    else
    {
@@ -52,10 +57,7 @@ void rayoAvanza()
 }
 
 void updateTurbina()
-{
-
-
-    
+{    
     if (sillaOn == true)
     {
       if (intensidadTurbina < 255)
@@ -71,7 +73,8 @@ void updateTurbina()
     FastLED.setBrightness(intensidadTurbina);
 
 
-    for(int i=0; i< total_turbina; i++) {
+    for(int i=0; i< total_turbina; i++)
+    {
       int finalPos = (i + turbinaPos) % total_turbina; 
       if (finalPos > total_turbina/3 ) 
       {
@@ -79,8 +82,8 @@ void updateTurbina()
       }
       else
       {
-          ledsTurbina[i] = CRGB(255,255,255);      }
-      
+          ledsTurbina[i] = CRGB(255,255,255);      
+      } 
     }
     turbinaCounter =+1;
 

@@ -61,11 +61,12 @@ bool validado = false;
 
 MFRC522 mfrc522(SS_PIN, RST_PIN);  // Create MFRC522 instance
 
-// UID  95 6D D0 65
-int byte0 = 149;
-int byte1 = 109;
-int byte2 = 208;
-int byte3 = 101;
+// UID  32 F7 AC D5
+
+int byte0 = 50;
+int byte1 = 247;
+int byte2 = 172;
+int byte3 = 213;
 
 String currentCode = "";
 
@@ -117,6 +118,8 @@ void setup() {
  
     pinMode(buzzPin,OUTPUT);
     pinMode(laser, OUTPUT);
+   digitalWrite(laser, LOW);
+   validado = false;
 /////////////////// END
       
     }
@@ -168,6 +171,7 @@ void handleReset()
   digitalWrite(laser, LOW);
   validado = false;
   currentCode = "";
+  noTone(buzzPin);
 
 /////////////////// END
    

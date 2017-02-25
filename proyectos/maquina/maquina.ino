@@ -54,8 +54,7 @@ trueno
 
 // buzzers
 
-#define BUZZER1  10
-#define BUZZER2  11
+#define BUZZER  11
 
 
 //knobs to turn
@@ -233,8 +232,7 @@ void setup()
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_YELLOW, OUTPUT);
 
-  pinMode(BUZZER1, OUTPUT);
-  pinMode(BUZZER2, OUTPUT);
+  pinMode(BUZZER, OUTPUT);
 
   pinMode(plasma1, OUTPUT);
   pinMode(plasma2, OUTPUT);
@@ -267,6 +265,8 @@ void setup()
 
   FastLED.setBrightness(baseBrightness);
 
+
+  shutUp();
   lucesOff();    // todas las luces apagadas
 
   //Mode checking

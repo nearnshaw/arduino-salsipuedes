@@ -15,7 +15,7 @@ const int localPort = 7001;
 const char* controllerId = "androMapa";
 
 
-IPAddress ip(192,168,0,71);
+IPAddress ip(192,168,0,63);
 IPAddress gateway(192,168,11,1);
 IPAddress subnet(255,0,0,0); 
 IPAddress dns(10,0,2,200);
@@ -53,6 +53,8 @@ void setup() {
     server.on("/test", handleTest);
     
     server.on("/reset", handleReset);
+
+    server.on("/alarma", handleAlarma);
 
     server.onNotFound(handleNotFound);
 
@@ -121,13 +123,6 @@ void handleReset()
 { 
    server.send(200, "text/plain", "reset");
    Serial.println("reset");
-
-///////////////////  VARIABLES TO RESET
-
-  int mag = 0;
-  boolean magnetState = false;
-
-/////////////////// END
    
 }
 
@@ -137,6 +132,13 @@ void handleReset()
 
 
 // other call functions go here
+
+void handleAlarma()
+{ 
+   server.send(200, "text/plain", "alarma");
+   Serial.println("alarma");
+   
+}
 
 
 /////////////////// END

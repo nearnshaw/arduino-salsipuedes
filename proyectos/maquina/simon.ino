@@ -140,6 +140,7 @@ byte checkButton(void)
 // Green, upper right:  880Hz - 1.136ms - 0.568ms pulse
 // Blue, lower left:    587.33Hz - 1.702ms - 0.851ms pulse
 // Yellow, lower right: 784Hz - 1.276ms - 0.638ms pulse
+
 void toner(byte which, int buzz_length_ms)
 {
   setLEDs(which); //Turn on a given LED
@@ -177,12 +178,10 @@ void buzz_sound(int buzz_length_ms, int buzz_delay_us)
     buzz_length_us -= buzz_delay_us * 2; //Decrease the remaining play time
 
     // Toggle the buzzer at various speeds
-    digitalWrite(BUZZER1, LOW);
-    digitalWrite(BUZZER2, HIGH);
+    digitalWrite(BUZZER, LOW);
     delayMicroseconds(buzz_delay_us);
 
-    digitalWrite(BUZZER1, HIGH);
-    digitalWrite(BUZZER2, LOW);
+    digitalWrite(BUZZER, HIGH);
     delayMicroseconds(buzz_delay_us);
   }
 }
@@ -201,7 +200,8 @@ void play_winner(void)
   simonWon = true;
   Serial1.print("SWIN");
   gamesWon += 1;
-  rayoAvanza();
+  shutUp();
+  rayoAvanza(); 
 }
 
 // Play the winner sound
@@ -213,12 +213,10 @@ void winner_sound(void)
   {
     for (byte y = 0 ; y < 3 ; y++)
     {
-      digitalWrite(BUZZER2, HIGH);
-      digitalWrite(BUZZER1, LOW);
+      digitalWrite(BUZZER, HIGH);
       delayMicroseconds(x);
 
-      digitalWrite(BUZZER2, LOW);
-      digitalWrite(BUZZER1, HIGH);
+      digitalWrite(BUZZER, LOW);
       delayMicroseconds(x);
       
     }
@@ -239,7 +237,7 @@ void play_loser(void)
 
   setLEDs(CHOICE_BLUE | CHOICE_YELLOW);
   buzz_sound(255, 1500);
-
+  shutUp();
   Serial1.print("SFAIL");
 }
 
@@ -268,4 +266,10 @@ void attractMode(void)
     counterAttract -= 1;
     //checkIncoming();
   }
+
+  digitalWrite(LED_RED,LOW);
+  digitalWrite(LED_GREEN,LOW);
+  digitalWrite(LED_BLUE,LOW);
+  digitalWrite(LED_YELLOW,LOW);
+  shutUp();
 }
