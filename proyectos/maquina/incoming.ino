@@ -1,7 +1,9 @@
 void handleSillaOn()
 { 
+  turbinaFlash();
   sillaOn = true;
   efectoTurbina = true;  
+  turbinaCounter = 5000;
   Serial.print("silla on");
 }
 
@@ -94,7 +96,7 @@ void handleReset()
   resetState();
   shutUp();
 
-  offCounter = 0;
+  enchufeCounter = 0;
   delay(10);
  /////////////////// END
    
@@ -109,7 +111,7 @@ void handleOn()
   lucesOff();
   resetState();
 
-  offCounter = 0;
+  enchufeCounter = 0;
   enchufada = true;
    
   //attractMode(); // After setup is complete, say hello to the world
@@ -150,7 +152,7 @@ void lucesOff()
       strip1[i] = CRGB(0,0,0);
   }
 
-  for(int i=0; i< PIXEL_COUNT5; i++) {
+  for(int i=0; i< total_turbina; i++) {
       ledsTurbina[i] = CRGB(0,0,0);
   }
   FastLED.show();
@@ -173,7 +175,7 @@ void resetState()
   gamesWon = 0;
   gameRound = 0;
 
-  //offCounter = 0;
+  //enchufeCounter = 0;
   Serial.print("reset state");
 }
 

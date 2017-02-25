@@ -36,6 +36,7 @@ boolean play_memory(void)
 // Plays the current contents of the game moves
 void playMoves(void)
 {
+  shutUp();
   for (byte currentMove = 0 ; currentMove < gameRound ; currentMove++) 
   {
     toner(gameBoard[currentMove], 150);
@@ -163,6 +164,7 @@ void toner(byte which, int buzz_length_ms)
   }
 
   setLEDs(CHOICE_OFF); // Turn off all LEDs
+  shutUp();
 }
 
 
@@ -244,6 +246,7 @@ void play_loser(void)
 // Show an "attract mode" display while waiting for user to press button.
 void attractMode(void)
 {
+  shutUp();
   int counterAttract = 5;
   while(counterAttract > 0) 
   {

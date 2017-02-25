@@ -140,7 +140,7 @@ int valorR3 = 800;
 //estado maquina
 
 
-bool enchufada = false;
+bool enchufada = LOW;
 bool knobsWon = false;
 bool radioWon = false;
 bool simonWon = false;
@@ -160,11 +160,11 @@ int velocidad_rayos = 500;    // que tan rapido avanza
 int intensidadRayos = 30;    // brillo de luces, que pegue spike con rayos
 
 int turbinaPos = 0;   //para que giren locas
-int turbinaCounter = 0;  // cada cuantos ciclos gira
-int turbinaSpeed = 300;   // cada cuanto gira
 float intensidadTurbina = 30;   // brillo de luces, arranca tranca va increcendo
+int turbinaArray[total_turbina];   // para flashes mantenidos
+int turbinaCounter = 0;
 
-int offCounter = 0;   // contador, ciclos desde que esta desenchufada
+int enchufeCounter = 0;   // contador, ciclos desde que esta desenchufada
 
 
 // Define simon parameters
@@ -280,7 +280,7 @@ void setup()
 void loop()
 {
   
-  if ( enchufada == true)
+  if ( HIGH == true)
   {
 
    if (knobsWon == false)
@@ -315,12 +315,7 @@ void loop()
          play_loser(); // Player lost, play loser tones
        }
     }
-
-    if (efectoTurbina == true)
-    {
-        updateTurbina();  
-    }
-
+  
     if ( luzRayos == true)
     {
       Serial.print("rayos");
@@ -329,7 +324,7 @@ void loop()
   
         
   }
-
+  updateTurbina(); 
   FastLED.show();
   enchufada = checkEnchufe();     // si esta enchufado
   checkIncoming();    // check for incoming messages from wemos
@@ -357,7 +352,7 @@ void checkKnobs()
       knobsWon = true;
       gamesWon += 1;
       Serial1.print("KWIN");
-      Serial.print("knobs won");
+      Serial.println("knobs won");
       rayoAvanza();
     }
 
@@ -394,7 +389,7 @@ void checkRadio()
     winner_sound();
     radioWon = true;
     gamesWon += 1;
-    Serial.print("radio won");
+    Serial.println("radio won");
     Serial1.print("RWIN");
     rayoAvanza();
   }
@@ -406,35 +401,35 @@ bool checkEnchufe()
 {
   
   bool now = digitalRead(ENCHUFE_PIN); 
-  if (now == HIGH)
+  
+  if (now != enchufada)
   {
-    if (enchufada == false)
-    { 
-      Serial1.print("ON");
-      Serial.print("enchufe on");
-      offCounter = 0;
-      gamesWon += 1;
-      rayoAvanza();
-      delay(25);
+    enchufeCounter += 1;
 
-      //  capaz prender un par de luces acá??
-    }
-    return true;
-  }   
-  else 
+   if (enchufeCounter == 50)   // aceptamos el cambio
+   {  
+      enchufada = now;
+      enchufeCounter = 0;
+      if (enchufada == true)
+      { 
+        Serial1.print("ON");
+        Serial.println("enchufe on");
+        gamesWon += 1;
+        rayoAvanza();
+        delay(25);
+      }
+      else
+      {
+         Serial1.print("OFF");
+         Serial.println("enchufe off");
+         handleOff();
+      }
+    } 
+  }
+  else
   {
-     offCounter += 1;
-     //Serial.println(offCounter);   
-   }
-      
-   if (offCounter == 50)   // se acaba de apagar
-   {
-      Serial1.print("OFF");
-      Serial.print("enchufe off");
-      handleOff();
-      return false;
-
-   }
-   return enchufada;    //el estado en el que estaba antes  
-   
-}
+    enchufeCounter = 0;
+  }
+  return enchufada;    //el estado en el que estaba antes 
+}    
+    

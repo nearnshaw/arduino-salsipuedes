@@ -1,7 +1,7 @@
 void rayoAvanza()
 {
-   Serial.print("rayo avanza. gamesWon:");
-   Serial.print(gamesWon);
+   Serial.println("rayo avanza. gamesWon:");
+   Serial.println(gamesWon);
      
    if (gamesWon == 1)    // ENCHUFE
    {
@@ -11,6 +11,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
       }
+      turbinaCounter = 2000;
    }
    else if (gamesWon == 2)    // ENCHUFE + RADIO o KNOBS
    {  
@@ -21,6 +22,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }
+       turbinaCounter = 2500;
    }
    else if (gamesWon == 3)    // ENCHUFE + RADIO + KNOBS
    {
@@ -31,6 +33,8 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }  
+       turbinaCounter = 1000;
+       delay(100);
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
@@ -46,6 +50,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }
+       turbinaCounter = 2500;
    }  // se queda esperando la silla
    else
    {
@@ -58,44 +63,113 @@ void rayoAvanza()
 
 void updateTurbina()
 {    
-    if (sillaOn == true)
+
+    if (turbinaCounter > 1)
+    { 
+      turbinaFlash();
+    }
+    else if (turbinaCounter == 1)
     {
-      if (intensidadTurbina < 255)
-      {
-      intensidadTurbina +=  0.05;
-      }
+         turbinaOff();
+         FastLED.setBrightness(baseBrightness);
+         turbinaCounter = 0;       
     }
-    else   // sillaOn = false
+    else if (efectoTurbina == true)
     {
-      intensidadTurbina = baseBrightness;
-    }
-    
-    FastLED.setBrightness(intensidadTurbina);
-
-
-    for(int i=0; i< total_turbina; i++)
-    {
-      int finalPos = (i + turbinaPos) % total_turbina; 
-      if (finalPos > total_turbina/3 ) 
-      {
-         ledsTurbina[i] = CRGB(20,20,20);
-      }
-      else
-      {
-          ledsTurbina[i] = CRGB(255,255,255);      
-      } 
-    }
-    turbinaCounter =+1;
-
-    if (turbinaCounter == turbinaSpeed)   // actualizar posicion cada x ciclos
-    {     
-          turbinaCounter = 0;
-          turbinaPos += 1;
-          turbinaPos = turbinaPos % PIXEL_COUNT5;        
-    }
-
 
   
+      if (sillaOn == true)
+      {
+        if (intensidadTurbina < 255)
+        {
+          intensidadTurbina +=  0.04;
+          for(int i=0; i< total_turbina; i++)
+          {
+            ledsTurbina[i] = CRGB(255,255,255);       
+          }
+        }
+        else
+        {
+          int flicker = random(0,2000);
+          if (flicker > 150)
+          {
+            for(int i=0; i< total_turbina; i++)
+            {
+                  ledsTurbina[i] = CRGB(255,255,255);       
+            }
+          }
+          else
+          {
+            for(int i=0; i< total_turbina; i++)
+            {
+                  newShapeTurbina();
+                  ApplyShape();   
+            }      
+          }
+        }
+      }
+      else   // sillaOn = false
+      {
+        intensidadTurbina = baseBrightness;
+        turbinaOff();      
+      }
+      
+      FastLED.setBrightness(intensidadTurbina);  
+   }
+
+
+}
+
+
+
+
+
+void turbinaFlash()
+{
+   int flicker = pow(random(0,sqrt(turbinaCounter)),2); //pow(random(0,45),2);   // hasta 2025 exponencial
+   if (flicker > 1900)
+   {
+       newShapeTurbina();        
+       ApplyShape();
+   }
+   else if (flicker > turbinaCounter)
+   {
+      FastLED.setBrightness(0);
+   }
+   else
+   {   
+      flicker = flicker % 255;
+      FastLED.setBrightness(flicker);                    
+   }
+   turbinaCounter -= 1;
+}
+
+void newShapeTurbina()
+{
+    for(int i=0; i<  total_turbina; i++) {
+
+      // random y de fuerza exponencial
+      
+      float lum = random(0,  sqrt(255)); 
+      turbinaArray[i] =  lum * lum;   //exponencial hasta 225 
+    }
+}
+
+void ApplyShape()
+{
+     for(int i=0; i<  total_turbina; i++) 
+     {
+        ledsTurbina[i] = CRGB(turbinaArray[i], turbinaArray[i], turbinaArray[i]);
+     }
+}
+
+void turbinaOff()
+{
+    for(int i=0; i<  total_turbina; i++) {
+
+      ledsTurbina[i] = CRGB(0,0,0);  
+    }
+    FastLED.show();
 }
 
 
