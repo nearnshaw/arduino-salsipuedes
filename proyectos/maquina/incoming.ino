@@ -53,12 +53,12 @@ void checkIncoming()
           handleReset();
        }
 
-       if(incomingData.equals("ON"))
+       if(incomingData.equals("on"))
        {
           handleOn();
        }
 
-       if(incomingData.equals("OFF"))
+       if(incomingData.equals("off"))
        {
           handleOff();
        }
@@ -129,6 +129,8 @@ void handleOff()
   resetState();
   delay(10);
   shutUp();
+  exitRoom();   //abrir puerta
+  yaGano = true;
  /////////////////// END
    
 }
@@ -145,7 +147,9 @@ void lucesOff()
   digitalWrite(plasma1,HIGH);     // x algun motivo funca alrevez el relay module
   digitalWrite(plasma2,HIGH);
   digitalWrite(plasma3,HIGH);
-  digitalWrite(plasma4,HIGH);
+  digitalWrite(botonSalida,HIGH);
+
+  digitalWrite(luzSalida,LOW);
   delay(10);
   
   for(int i=0; i< total_strip1; i++) {
@@ -174,6 +178,8 @@ void resetState()
 
   gamesWon = 0;
   gameRound = 0;
+  
+  yaGano = false;
 
   //enchufeCounter = 0;
   Serial.print("reset state");

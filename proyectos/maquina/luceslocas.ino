@@ -11,6 +11,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
       }
+      delay(200);
       turbinaCounter = 2000;
    }
    else if (gamesWon == 2)    // ENCHUFE + RADIO o KNOBS
@@ -22,6 +23,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }
+       delay(200);
        turbinaCounter = 2500;
    }
    else if (gamesWon == 3)    // ENCHUFE + RADIO + KNOBS
@@ -33,8 +35,8 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }  
+       delay(200);
        turbinaCounter = 1000;
-       delay(100);
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
@@ -50,6 +52,7 @@ void rayoAvanza()
           FastLED.show();
           delay(velocidad_rayos);
        }
+       delay(200);
        turbinaCounter = 2500;
    }  // se queda esperando la silla
    else
@@ -207,5 +210,11 @@ void rayoPega()
       
     }
   }
+}
+
+void exitRoom()
+{
+    digitalWrite(botonSalida,LOW); // habilitar boton
+    digitalWrite(luzSalida,HIGH);
 }
 

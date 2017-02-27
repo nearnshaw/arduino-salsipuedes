@@ -67,9 +67,9 @@ trueno
 
 
 //radio
-#define radio1   5
-#define radio2   6
-#define radio3   7
+#define radio1   44
+#define radio2   45
+#define radio3   46
 
 
 
@@ -82,15 +82,20 @@ trueno
 #define plasma1   30
 #define plasma2   31
 #define plasma3   32
-#define plasma4   33
 
-// tiras de leds
+#define botonSalida   33   // relay para buzzer de puerta
 
-#define strip1Data     36    // leds trueno
-#define strip1Clock    35    
+#define luzSalida    53    // led que alumbra boton   
+
+#define strip1Data     50    // leds trueno
+#define strip1Clock    51    
 
 #define turbinaData     41    // leds trueno
 #define turbinaClock    40   
+
+
+
+// cantidades de leds
 
 #define PIXEL_COUNT1 3  // tramo pared a plasma1
 #define PIXEL_COUNT2 3  // tramo plasma1 a plasma2
@@ -165,7 +170,7 @@ int turbinaArray[total_turbina];   // para flashes mantenidos
 int turbinaCounter = 0;
 
 int enchufeCounter = 0;   // contador, ciclos desde que esta desenchufada
-
+bool yaGano = false;   // si ya destrabo todo, no vuelve a fijarse el switch
 
 // Define simon parameters
 #define ROUNDS_TO_WIN      4     //Number of rounds to succesfully remember before you win. 13 is do-able.
@@ -237,7 +242,10 @@ void setup()
   pinMode(plasma1, OUTPUT);
   pinMode(plasma2, OUTPUT);
   pinMode(plasma3, OUTPUT);
-  pinMode(plasma4, OUTPUT);
+  pinMode(botonSalida, OUTPUT);
+  pinMode(luzSalida, OUTPUT);
+
+
 
   pinMode(knob1, INPUT);
   pinMode(knob2, INPUT);
@@ -280,7 +288,7 @@ void setup()
 void loop()
 {
   
-  if ( HIGH == true)
+  if ( checkEnchufe() == true)
   {
 
    if (knobsWon == false)
@@ -399,37 +407,44 @@ void checkRadio()
 
 bool checkEnchufe()
 {
-  
-  bool now = digitalRead(ENCHUFE_PIN); 
-  
-  if (now != enchufada)
+  if(yaGano == false)
   {
-    enchufeCounter += 1;
-
-   if (enchufeCounter == 50)   // aceptamos el cambio
-   {  
-      enchufada = now;
+    
+    bool now = digitalRead(ENCHUFE_PIN); 
+    
+    if (now != enchufada)
+    {
+      enchufeCounter += 1;
+  
+     if (enchufeCounter == 50)   // aceptamos el cambio
+     {  
+        enchufada = now;
+        enchufeCounter = 0;
+        if (enchufada == true)
+        { 
+          Serial1.print("ON");
+          Serial.println("enchufe on");
+          gamesWon += 1;
+          rayoAvanza();
+          delay(25);
+        }
+        else
+        {
+           Serial1.print("OFF");
+           Serial.println("enchufe off");
+           handleOff();
+        }
+      } 
+    }
+    else
+    {
       enchufeCounter = 0;
-      if (enchufada == true)
-      { 
-        Serial1.print("ON");
-        Serial.println("enchufe on");
-        gamesWon += 1;
-        rayoAvanza();
-        delay(25);
-      }
-      else
-      {
-         Serial1.print("OFF");
-         Serial.println("enchufe off");
-         handleOff();
-      }
-    } 
+    }
+    return enchufada;    //el estado en el que estaba antes 
   }
   else
   {
-    enchufeCounter = 0;
+    return false;
   }
-  return enchufada;    //el estado en el que estaba antes 
 }    
     
