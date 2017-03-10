@@ -8,10 +8,10 @@ void checkIncoming()
   
   
     //   messages from wemos
-    while (Serial1.available()) 
+    while (Serial.available()) 
     {
         // read the incoming byte:
-        character = Serial1.read();
+        character = Serial.read();
         incomingData = String(incomingData + character);
         lastCharTime = 0;
     }

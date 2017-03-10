@@ -95,10 +95,10 @@ void handleRoot() {
 
 /////////////////// DESCRIPTION 
 
-  String message = "detecta iman\n\n";
+  String message = "mapa con luces y alarma \n\n";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
+  message += "/test /reset /alarma \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";

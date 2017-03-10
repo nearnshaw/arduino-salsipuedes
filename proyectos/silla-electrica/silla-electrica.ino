@@ -22,7 +22,7 @@ IPAddress dns(10,0,2,200);
 
 // specific variables
 
-const int led = D2;       //normal led w resistance
+const int plasma = D2;       //relay a plasma
 const int silla = D1;    //a makey makey D14, con 10K resistencia
 bool sillaOn = false;    //ya - hace contacto o no
 bool sillaOnOld = false;     //ultima reportada - hace contacto o no
@@ -53,6 +53,8 @@ void setup() {
 
     server.on("/manual", handleManual);
 
+    server.on("/lista", handleLista);
+
     server.onNotFound(handleNotFound);
     
     server.begin();
@@ -63,7 +65,7 @@ void setup() {
       
 //////// initialise pins
 
-      pinMode(led,OUTPUT);
+      pinMode(plasma,OUTPUT);
       pinMode(silla,INPUT);
 
 /////
@@ -87,7 +89,7 @@ void handleRoot() {
   String message = "Si hace contacto en la silla, manda WIN\n\n";
   message += controllerId;
   message += "\n\n metodos: \n";
-  message += "/test /reset  \n\n" ;
+  message += "/test /reset /manual /lista  \n\n" ;
   message += "manda a puerto: \n";
   message += pcRemotePort ;
   message += "\n recibe en puerto: \n";
@@ -117,6 +119,7 @@ void handleReset()
 
 sillaOn = false;  
 sillaOnOld = false; 
+digitalWrite(plasma,LOW);
 
 ////
    
@@ -130,8 +133,8 @@ void handleManual()
   sillaOn = true;
   sillaOnOld = false;
   offCounter = 0;
-  digitalWrite(led, HIGH);
-  
+  digitalWrite(plasma, HIGH);
+  server.send(200, "text/plain", "manual");
   
 /////////////////// END
   
@@ -139,7 +142,11 @@ void handleManual()
 
 
 //////  HANDLE OTHER CALLS
-
+void handleLista()
+{
+   digitalWrite(plasma, HIGH);
+   server.send(200, "text/plain", "listo");
+}
 
 /////
 
@@ -172,9 +179,10 @@ if(wifiConnected){
             UDP.print("SILLA ON");
             UDP.endPacket();
             Serial.println("silla se acaba de prender");          
-
-           sillaOnOld = HIGH;
-           delay(500);
+            digitalWrite(plasma, HIGH);
+              
+            sillaOnOld = HIGH;
+            delay(500);
         }
         offCounter = 0;
       }
@@ -194,7 +202,8 @@ if(wifiConnected){
           //UDP.write(5);   // write returns nonsense
           UDP.print("SILLA OFF");
           UDP.endPacket();
-          Serial.println("silla se acaba de apagar");          
+          Serial.println("silla se acaba de apagar");
+          //digitalWrite(plasma, LOW);    // queda prendido el plasma     
 
       }
 

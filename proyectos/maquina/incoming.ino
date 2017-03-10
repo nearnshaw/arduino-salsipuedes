@@ -171,6 +171,7 @@ void resetState()
   simonWon = false;
   knobsWon = false;
   radioWon = false; 
+  simonReady = false;
   sillaOn = false; 
   efectoTurbina = false; 
   luzRayos = false;

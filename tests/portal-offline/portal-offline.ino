@@ -48,17 +48,17 @@ int state = 0;   //0 off, 1 on
 
 String fase = "off";
 
-bool pulso = false;
-
 int pos = 0;
 
 float deg = 360 / pixelsInCircle;
 
-const int totalPulso = 1000;
+const int totalPulso = 500;
 int tiempoPulso = 0;
-float intensidadPulso = 255;
+int intensidadPulso = 255;
 //time since start of action?
 
+
+int counter = 0;
 
 
 /////////////////// END
@@ -76,59 +76,28 @@ void setup() {
 
   Serial.begin(115200);
   delay(1000);
-  wifiConnected = connectWifi();
-  // only proceed if wifi connection successful
-  if(wifiConnected){
-    
-    server.on("/", handleRoot);
-    
-    server.on("/test", handleTest);
-    
-    server.on("/reset", handleReset);
-
-    server.on("/manual", handleManual);
-
-    server.onNotFound(handleNotFound);
-
-///////////////////     MORE URL OPTIONS
-
-    server.on("/on", handleOn);
-
-    server.on("/off", handleOff);
-
-    server.on("/shutdown", handleShutDown);
-
-    server.on("/red", handleRed);
-
-    server.on("/cold", handleCold);
-
-    server.on("/pulso", handlePulso);
 
 
 //more calls go here
 
 
-
-
 /////////////////// END
 
     
-    server.begin();
+
     Serial.println("HTTP server started");
-    udpConnected = connectUDP();
-    if (udpConnected){
 
       
 ///////////////////   initialise pins
 
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
-    strip.setBrightness(255);
 
+state = 1;
+fase = "start";
 /////////////////// END
       
-    }
-  }
+
 }
 
 
@@ -170,7 +139,6 @@ void handleReset()
 { 
    server.send(200, "text/plain", "reset");
    Serial.println("reset");
-   
 
 ///////////////////  VARIABLES TO RESET
 
@@ -178,8 +146,7 @@ pos = 0;
 state = 0;
 fase = "off";
 
-    strip.setBrightness(255);
-    
+
 for(int i=0; i< strip.numPixels(); i++) {
       strip.setPixelColor(i, 0,0,0);
 }
@@ -214,7 +181,6 @@ void handleOn()
   state = 1;
   fase = "start";
   server.send(200, "text/plain", "on");
-  strip.setBrightness(255);
 }
 
 void handleOff()
@@ -245,7 +211,6 @@ void handleRed()
   state = 1;
   fase = "red";
   server.send(200, "text/plain", "red");
-  strip.setBrightness(255);
 }
 
 
@@ -254,14 +219,12 @@ void handleCold()
   state = 1;
   fase = "cold";
   server.send(200, "text/plain", "cold");
-  strip.setBrightness(255);
 }
 
 void handlePulso()
 {
   state = 1;
-  pulso = true;
-  fase = "off";
+  fase = "pulso";
   tiempoPulso = totalPulso;
   server.send(200, "text/plain", "pulso");
 }
@@ -277,13 +240,6 @@ void handlePulso()
 void loop() {
   
 // check if the WiFi and UDP connections were successful
-if(wifiConnected){
-    server.handleClient();
-    
-    if(udpConnected){
-      
-      UDPRead();
-      delay(15);
 
 
 /////////////////// ACTUAL CODE
@@ -302,7 +258,7 @@ if(wifiConnected){
       {
         updateColdFlow(10);
       }
-      else if (pulso == true)
+      else if (fase == "pulso")
       {
         updatePulso();
       }
@@ -316,6 +272,35 @@ if(wifiConnected){
     strip.show();
 
 
+  counter += 1;
+
+  if (counter > 1000)
+  {
+    if (fase == "start")
+    {
+      fase = "red";
+      counter = 0;
+    }
+    else if (fase == "red")
+    {
+      fase = "cold";
+      counter = 0;
+    }
+    else if (fase == "cold")
+    {
+      fase = "pulse";
+      counter = 0;
+    }
+    else if (fase == "pulse")
+    {
+      fase = "start";
+      counter = 0;
+    }
+    
+  }
+
+
+
 //diferenciar aro de nubes
 // hacer uno que pulse entero el mismo color
 
@@ -324,8 +309,7 @@ if(wifiConnected){
 
 /////////////////// END
     
-    }
-  }
+
 }
 
 
@@ -427,36 +411,28 @@ uint32_t coldFlow(byte WheelPos) {
 void updatePulso()
 {
 
-  int curva = tiempoPulso % 240;  //255 - 15   // 530;   //255 X 2  - 30
 
-  if (curva >   120)
+  if (tiempoPulso >   totalPulso / 4 * 3)
   {
-    intensidadPulso -= 2;
+    intensidadPulso += 1;
   }
-  else if (curva  <   120)
+  else if (tiempoPulso >   totalPulso / 2)
   {
-    intensidadPulso += 2;
+    intensidadPulso -= 1;
   }
-  
-  intensidadPulso = constrain(intensidadPulso,30,255);
-
-  tiempoPulso -= 1;
-
-  if (tiempoPulso == 0)
+  else if (tiempoPulso >   totalPulso / 4 )
   {
-    pulso = false;
-    intensidadPulso = 255;
+    intensidadPulso += 1;
+  }
+  else
+  {
+    intensidadPulso -= 1;
   }
 
-  Serial.println(intensidadPulso);
-
-  //strip.Color(intensidadPulso, 0, 0);
-
-   for(int i=0; i< pixelsInCircle; i++) 
+  for(int i=0; i< pixelsInCircle; i++) 
   {
-          strip.setPixelColor(i, intensidadPulso, 0, 20);
+          strip.setPixelColor(i, 0, 0, intensidadPulso);
   }
-  
   
 }
 

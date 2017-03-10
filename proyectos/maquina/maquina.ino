@@ -67,10 +67,10 @@ trueno
 
 
 //radio
-#define radio1   44
-#define radio2   45
-#define radio3   46
-
+#define radio1   A13  // potenciometro lineal  44
+#define radio2   A14  // switch 1       45
+#define radio3   A15  //   switch 2       46
+ 
 
 
 
@@ -97,10 +97,10 @@ trueno
 
 // cantidades de leds
 
-#define PIXEL_COUNT1 3  // tramo pared a plasma1
-#define PIXEL_COUNT2 3  // tramo plasma1 a plasma2
-#define PIXEL_COUNT3 3  // tramo plasma2 a plasma3
-#define PIXEL_COUNT4 1 // tramo plasma3 a maquina
+#define PIXEL_COUNT1 1  // tramo pared a plasma1
+#define PIXEL_COUNT2 1  // tramo plasma1 a plasma2
+#define PIXEL_COUNT3 4  // tramo plasma2 a plasma3
+#define PIXEL_COUNT4 4 // tramo plasma3 a maquina
 
 // para tener el index dentro de la tira
 #define PIXELS1 PIXEL_COUNT1                // tramo pared a plasma1
@@ -133,9 +133,9 @@ int margenKnobs = 50;
 
 //valores juego 3
 
-int valorR1 = 100;
-int valorR2 = 0;
-int valorR3 = 800;
+int valorR1 = 800;   // 0 a 1100
+int valorR2 = HIGH;
+int valorR3 = HIGH;
 
 // enchufe
 
@@ -148,6 +148,7 @@ int valorR3 = 800;
 bool enchufada = LOW;
 bool knobsWon = false;
 bool radioWon = false;
+bool simonReady = false;
 bool simonWon = false;
 bool sillaOn = false;
 
@@ -303,7 +304,7 @@ void loop()
     }
 
     //simon
-    if (knobsWon == true && radioWon == true &&  simonWon == false)
+    if (simonReady== true &&  simonWon == false)
     {
       attractMode(); // Blink lights while waiting for user to press a button
     
@@ -355,14 +356,21 @@ void checkKnobs()
     if( abs(k1 - valorK1) < margenKnobs &&
         abs(k2 - valorK2) < margenKnobs &&
         abs(k3 - valorK3) < margenKnobs)
-    {
-      winner_sound();
-      knobsWon = true;
-      gamesWon += 1;
-      Serial1.print("KWIN");
-      Serial.println("knobs won");
-      rayoAvanza();
-    }
+        {
+            shutUp();
+            winner_sound();
+            knobsWon = true;
+            gamesWon += 1;
+            Serial1.print("KWIN");
+            Serial.println("knobs won");
+            rayoAvanza();
+        }
+      else
+      {
+        shutUp();
+      }
+        
+
 
       Serial.println("knob values:");
       Serial.print(k1);
@@ -381,26 +389,40 @@ void checkKnobs()
 void checkRadio()
 {
   int r1 = analogRead(radio1);
-  int r2 = analogRead(radio2);
-  int r3 = analogRead(radio3);
+  int r2 = digitalRead(radio2);
+  int r3 = digitalRead(radio3);
 
 
   ///    DEBUG   sacar estas lineas
-  r1 = valorR1;
-  r2 = valorR2;
-  r3 = valorR3;
+  //r1 = valorR1;
+  //r2 = valorR2;
+  //r3 = valorR3;
   
-  if( abs(r1 - valorR1) < margenKnobs &&
-      abs(r2 - valorR2) < margenKnobs &&
-      abs(r3 - valorR3) < margenKnobs)
-  {
-    winner_sound();
-    radioWon = true;
-    gamesWon += 1;
-    Serial.println("radio won");
-    Serial1.print("RWIN");
-    rayoAvanza();
-  }
+    if( r2 == valorR2 &&
+        r3 == valorR3)
+      {
+         int dif = abs(r1 - valorR1);
+         int frecu = map(dif, 0, 500, 2100, 500);
+         tone(BUZZER,frecu,2); 
+
+         if (dif < 2) // margen mas chico que knobs
+         {
+            winner_sound();
+            radioWon = true;
+            gamesWon += 1;
+            Serial.println("radio won");
+            Serial1.print("RWIN");
+            rayoAvanza();
+         }
+      }
+      else
+      {
+        Serial.println(r1);
+        Serial.print("   ");
+        Serial.print(r2);
+        Serial.print("   ");
+        Serial.print(r3);
+        }
 
   
 }

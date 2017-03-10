@@ -12,7 +12,9 @@ void rayoAvanza()
           delay(velocidad_rayos);
       }
       delay(200);
-      turbinaCounter = 2000;
+      turbinaCounter = 1500;
+      newShapeTurbina();   // solo primera vez pq sino no tiene shape        
+      ApplyShape();
    }
    else if (gamesWon == 2)    // ENCHUFE + RADIO o KNOBS
    {  
@@ -37,6 +39,7 @@ void rayoAvanza()
        }  
        delay(200);
        turbinaCounter = 1000;
+       simonReady = true;
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
    {
@@ -53,7 +56,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
        }
        delay(200);
-       turbinaCounter = 2500;
+       turbinaCounter = 3000;
    }  // se queda esperando la silla
    else
    {

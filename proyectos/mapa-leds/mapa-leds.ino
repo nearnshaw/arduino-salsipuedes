@@ -89,9 +89,7 @@ void setup() {
       
 ///////////////////   initialise pins
 
-      Serial1.begin(115200);
-
-
+   
       pinMode(leds[0],OUTPUT);
       pinMode(leds[1],OUTPUT);
       pinMode(leds[2],OUTPUT);
@@ -125,8 +123,8 @@ void setup() {
 void handleTest()
 {
 //   server.send(200, "text/plain", controllerId);
-   Serial.println("testing request");
-   Serial1.println("ok");
+   //Serial.println("testing request");
+   Serial.println("ok");
 }
 
 
@@ -155,8 +153,8 @@ void loop() {
               {
                 int ledState = pattern[0][j];
                 digitalWrite(leds[j], ledState);
-                Serial.print(ledState);
-                Serial1.print("button1");                
+                Serial.print("button1");
+                //Serial1.print("button1");                
               }          
         }
         
@@ -167,8 +165,8 @@ void loop() {
               {
                 int ledState = pattern[1][j];
                 digitalWrite(leds[j], ledState);
-                Serial.print(ledState);
-                Serial1.print("button2");                
+                Serial.print("button2");
+                //Serial1.print("button2");                
               }          
         }
         
@@ -179,8 +177,8 @@ void loop() {
               {
                 int ledState = pattern[2][j];
                 digitalWrite(leds[j], ledState);
-                Serial.print(ledState);
-                Serial1.print("button3");                
+                Serial.print("button3");
+                //Serial1.print("button3");                
               }          
         }
               
@@ -191,8 +189,8 @@ void loop() {
               {
                 int ledState = pattern[3][j];
                 digitalWrite(leds[j], ledState);
-                Serial.print(ledState);
-                Serial1.print("button4");
+                Serial.print("button4");
+                //Serial1.print("button4");
                 
               }          
         }
