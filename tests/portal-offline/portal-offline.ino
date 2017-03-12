@@ -92,7 +92,7 @@ void setup() {
 
     strip.begin();
     strip.show(); // Initialize all pixels to 'off'
-
+    strip.setBrightness(255);
 state = 1;
 fase = "start";
 /////////////////// END

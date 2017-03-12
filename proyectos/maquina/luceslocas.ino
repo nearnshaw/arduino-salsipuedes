@@ -56,7 +56,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
        }
        delay(200);
-       turbinaCounter = 3000;
+       turbinaCounter = 20000;
    }  // se queda esperando la silla
    else
    {

@@ -427,15 +427,15 @@ uint32_t coldFlow(byte WheelPos) {
 void updatePulso()
 {
 
-  int curva = tiempoPulso % 240;  //255 - 15   // 530;   //255 X 2  - 30
+  int curva = tiempoPulso % 150;  //255 - 30 / 3   // 530;   //255 X 2  - 30
 
-  if (curva >   120)
+  if (curva >   75)
   {
-    intensidadPulso -= 2;
+    intensidadPulso -= 3;
   }
-  else if (curva  <   120)
+  else if (curva  <   75)
   {
-    intensidadPulso += 2;
+    intensidadPulso += 3;
   }
   
   intensidadPulso = constrain(intensidadPulso,30,255);
@@ -454,7 +454,7 @@ void updatePulso()
 
    for(int i=0; i< pixelsInCircle; i++) 
   {
-          strip.setPixelColor(i, intensidadPulso, 0, 20);
+          strip.setPixelColor(i, intensidadPulso, 0, 15);
   }
   
   
