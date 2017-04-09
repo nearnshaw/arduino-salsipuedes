@@ -133,9 +133,12 @@ int margenKnobs = 50;
 
 //valores juego 3
 
-int valorR1 = 800;   // 0 a 1100
+int valorR1 = 650;   // 0 a 1100
 int valorR2 = HIGH;
 int valorR3 = HIGH;
+
+int tiempoRadio = 1000;
+const int tiempoRadioTotal = 1000;
 
 // enchufe
 
@@ -304,7 +307,7 @@ void loop()
     }
 
     //simon
-    if (simonReady== true &&  simonWon == false)
+    if (simonReady== true && turbinaCounter == 0 &&  simonWon == false)
     {
       attractMode(); // Blink lights while waiting for user to press a button
     
@@ -334,9 +337,9 @@ void loop()
         
   }
   updateTurbina(); 
-  FastLED.show();
   enchufada = checkEnchufe();     // si esta enchufado
   checkIncoming();    // check for incoming messages from wemos
+  FastLED.show();
 }
 
 
@@ -367,7 +370,8 @@ void checkKnobs()
         }
       else
       {
-        shutUp();
+        tone(BUZZER,60,100); 
+        //shutUp();
       }
         
 
@@ -402,10 +406,22 @@ void checkRadio()
         r3 == valorR3)
       {
          int dif = abs(r1 - valorR1);
-         int frecu = map(dif, 0, 500, 2100, 500);
+         //dif = dif * dif;
+         int frecu = map(dif, 0, 800, 3400, 500);
          tone(BUZZER,frecu,2); 
 
-         if (dif < 2) // margen mas chico que knobs
+         if (dif < 40) // margen mas chico que knobs
+         {
+            tiempoRadio -= 1;
+         }
+         else
+         {  
+            tiempoRadio = tiempoRadioTotal; 
+         }
+
+         Serial.println(dif);
+
+         if (tiempoRadio == 0)
          {
             winner_sound();
             radioWon = true;
@@ -414,6 +430,7 @@ void checkRadio()
             Serial1.print("RWIN");
             rayoAvanza();
          }
+         
       }
       else
       {

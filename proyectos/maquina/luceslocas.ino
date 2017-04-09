@@ -12,7 +12,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
       }
       delay(200);
-      turbinaCounter = 1500;
+      turbinaCounter = 6000;
       newShapeTurbina();   // solo primera vez pq sino no tiene shape        
       ApplyShape();
    }
@@ -26,7 +26,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
        }
        delay(200);
-       turbinaCounter = 2500;
+       turbinaCounter = 4500;
    }
    else if (gamesWon == 3)    // ENCHUFE + RADIO + KNOBS
    {
@@ -38,7 +38,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
        }  
        delay(200);
-       turbinaCounter = 1000;
+       turbinaCounter = 8500;
        simonReady = true;
    }
    else if (gamesWon == 4)   // ENCHUFE + RADIO + KNOBS + SIMON
@@ -56,7 +56,7 @@ void rayoAvanza()
           delay(velocidad_rayos);
        }
        delay(200);
-       turbinaCounter = 20000;
+       turbinaCounter = 10000;
    }  // se queda esperando la silla
    else
    {
@@ -106,18 +106,15 @@ void updateTurbina()
           }
           else
           {
-            for(int i=0; i< total_turbina; i++)
-            {
                   newShapeTurbina();
-                  ApplyShape();   
-            }      
+                  ApplyShape();       
           }
         }
       }
-      else   // sillaOn = false
+      else   // sillaOn == false
       {
         intensidadTurbina = baseBrightness;
-        turbinaOff();      
+        turbinaOff();     
       }
       
       FastLED.setBrightness(intensidadTurbina);  
@@ -171,11 +168,11 @@ void ApplyShape()
 
 void turbinaOff()
 {
-    for(int i=0; i<  total_turbina; i++) {
+    for(int i=0; i<  total_turbina; i++) 
+    {
 
       ledsTurbina[i] = CRGB(0,0,0);  
     }
-    FastLED.show();
 }
 
 
@@ -219,5 +216,7 @@ void exitRoom()
 {
     digitalWrite(botonSalida,LOW); // habilitar boton
     digitalWrite(luzSalida,HIGH);
+    Serial1.print("OFF");
+    
 }
 

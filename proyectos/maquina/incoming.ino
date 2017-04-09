@@ -1,10 +1,14 @@
 void handleSillaOn()
 { 
-  turbinaFlash();
-  sillaOn = true;
-  efectoTurbina = true;  
-  turbinaCounter = 5000;
-  Serial.print("silla on");
+
+  if (sillaOn == false && gamesWon > 3)
+  {
+    sillaOn = true;
+    efectoTurbina = true;  
+    turbinaCounter = 5000;
+    Serial.print("silla on");
+    turbinaFlash();
+  }
 }
 
 void handleSillaOff()
@@ -89,7 +93,7 @@ void checkIncoming()
 void handleReset()
 { 
    Serial.println("doiing a reset");
-
+   Serial1.print("OFF");
 ///////////////////  VARIABLES TO RESET
 
   lucesOff();  

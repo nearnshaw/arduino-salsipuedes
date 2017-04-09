@@ -113,7 +113,12 @@ void handleReset()
 { 
 
    server.send(200, "text/plain", "reset");
+   
    Serial.println("reset");
+
+   UDP.beginPacket(pcRemoteHost, pcRemotePort);
+   UDP.print("SILLA OFF");
+   UDP.endPacket();
 
 ////  VARIABLES TO RESET
 
