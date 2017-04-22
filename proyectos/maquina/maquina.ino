@@ -471,7 +471,7 @@ bool checkEnchufe()
         {
            Serial1.print("OFF");
            Serial.println("enchufe off");
-           handleOff();
+           handleReset();
         }
       } 
     }

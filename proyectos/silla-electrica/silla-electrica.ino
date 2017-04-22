@@ -27,7 +27,7 @@ const int silla = D1;    //a makey makey D14, con 10K resistencia
 bool sillaOn = false;    //ya - hace contacto o no
 bool sillaOnOld = false;     //ultima reportada - hace contacto o no
 int offCounter = 0;          // contador, cuantos ciclos desde que se apago
-
+bool lista = false;
 
 WiFiUDP UDP;
 boolean udpConnected = false;
@@ -125,7 +125,7 @@ void handleReset()
 sillaOn = false;  
 sillaOnOld = false; 
 digitalWrite(plasma,LOW);
-
+lista = false;
 ////
    
 }
@@ -134,7 +134,7 @@ digitalWrite(plasma,LOW);
 void handleManual()
 {
 /////////////////// VARIABLES TO CHANGE MANUALLY
-
+  lista = true;
   sillaOn = true;
   sillaOnOld = false;
   offCounter = 0;
@@ -151,6 +151,7 @@ void handleLista()
 {
    digitalWrite(plasma, HIGH);
    server.send(200, "text/plain", "listo");
+   lista = true;
 }
 
 /////
@@ -175,7 +176,7 @@ if(wifiConnected){
 
       
      // Serial.println(mag);
-      if(sillaOn == HIGH)
+      if(lista == true && sillaOn == HIGH)
       {
         if( sillaOnOld == LOW)    // se acaba de prender
         {

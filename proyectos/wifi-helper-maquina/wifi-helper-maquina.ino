@@ -131,11 +131,11 @@ void handleReset()
 { 
    server.send(200, "text/plain", "reset");
    Serial.println("reset");
-
+   delay(1000);
+   
 ///////////////////  VARIABLES TO RESET
-
-  int mag = 0;
-  boolean magnetState = false;
+   server.send(200, "text/plain", "OFF");
+   ESP.restart();
 
 /////////////////// END   
 }

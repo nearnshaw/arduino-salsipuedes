@@ -67,6 +67,11 @@ void checkIncoming()
           handleOff();
        }
 
+       if(incomingData.equals("win"))
+       {
+          handleWin();
+       }
+
        if(incomingData.equals("son"))
        {
           handleSillaOn();
@@ -81,6 +86,12 @@ void checkIncoming()
        {
           handleTrueno();
        }
+
+       if(incomingData.equals("manual"))
+       {
+          handleManual();
+       }
+       
  
        incomingData = "";
      }
@@ -125,7 +136,22 @@ void handleOn()
 
 void handleOff()
 { 
-   Serial.println("turning on");
+   Serial.println("turning off");
+
+///////////////////  VARIABLES TO RESET
+
+  lucesOff();
+  resetState();
+  delay(10);
+  shutUp();
+ /////////////////// END
+   
+}
+
+
+void handleWin()
+{ 
+   Serial.println("winnnnning");
 
 ///////////////////  VARIABLES TO RESET
 
@@ -138,6 +164,7 @@ void handleOff()
  /////////////////// END
    
 }
+
 
 void lucesOff()
 {
@@ -193,5 +220,20 @@ void resetState()
 void shutUp()
 {
     noTone(BUZZER);
+}
+
+void handleManual()
+{
+
+  if (gamesWon > 3)   // ya esta todo menos silla
+  {
+    handleWin(); 
+  }
+  else
+  {
+    gamesWon +=1;
+    rayoAvanza();
+  }
+
 }
 
